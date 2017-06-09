@@ -1,0 +1,191 @@
+﻿@model Tipwin.Models.Player
+@using CaptchaMvc.HtmlHelpers
+@using Tipwin;
+@using CaptchaMvc;
+@{
+
+    ViewBag.Title = "Create";
+    List<SelectListItem> p1 = new List<SelectListItem>();
+    ViewBag.List = p1;
+
+    p1.Add(new SelectListItem() { Text = "Gospodin" });
+    p1.Add(new SelectListItem() { Text = "Gospođica/Gospođa" });
+
+    List<SelectListItem> d1 = new List<SelectListItem>();
+
+    d1.Add(new SelectListItem() { Text = "Hrvatska" });
+    d1.Add(new SelectListItem() { Text = "Austrija" });
+    d1.Add(new SelectListItem() { Text = "Bosna i Hercegovina" });
+
+    d1.Add(new SelectListItem() { Text = "Njemačka" });
+    d1.Add(new SelectListItem() { Text = "Rusija" });
+    d1.Add(new SelectListItem() { Text = "Slovenija" });
+    d1.Add(new SelectListItem() { Text = "Švedska" });
+
+
+
+    List<SelectListItem> j1 = new List<SelectListItem>();
+
+    j1.Add(new SelectListItem() { Text = "Hrvatski" });
+    j1.Add(new SelectListItem() { Text = "Engleski" });
+    j1.Add(new SelectListItem() { Text = "Francuski" });
+
+
+    j1.Add(new SelectListItem() { Text = "Njemački" });
+    j1.Add(new SelectListItem() { Text = "Slovenski" });
+    j1.Add(new SelectListItem() { Text = "Ruski" });
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <br />
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Oslovljavanje, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="dropdown col-md-10">
+                @Html.DropDownListFor(model => model.Oslovljavanje, p1, "---Odaberite način oslovljavanja---", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Oslovljavanje, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Ime, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Ime, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Ime, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Prezime, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Prezime, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Prezime, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.DatumRodjenja, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.DatumRodjenja, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.DatumRodjenja, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmailPonovo, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.EmailPonovo, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.EmailPonovo, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Ulica, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Ulica, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Ulica, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.KucniBroj, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.KucniBroj, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.GradMjesto, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.GradMjesto, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.GradMjesto, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.PostanskiBroj, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.PostanskiBroj, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.PostanskiBroj, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Drzava, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="dropdown col-md-10">
+                @Html.DropDownListFor(model => model.Drzava, d1, "-----------Odaberite državu-----------------", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Drzava, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.JezikZaKontakt, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="dropdown col-md-10">
+                @Html.DropDownListFor(model => model.JezikZaKontakt, j1, "----------Odaberite jezik za kontakt--------------", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.JezikZaKontakt, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.BrojTelefona, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.BrojTelefona, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.BrojMobitela, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.BrojMobitela, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.KorisnickoIme, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.KorisnickoIme, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.KorisnickoIme, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Lozinka, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Lozinka, new { htmlAttributes = new { @class = "form-control" }, name = "Lozinka", id = "Lozinka", onkeyup = "passwordStrength(this.value)" })
+                @* @Html.EditorFor(model => model.Lozinka, new { htmlAttributes = new { @class = "form-control" }, })*@
+                @*   <input asp-for="Lozinka" type="password" name="pass" id="pass" onkeyup="passwordStrength(this.value)" />*@
+                @Html.ValidationMessageFor(model => model.Lozinka, "", new { @class = "text-danger" }) <br />
+                <label for="passwordStrength"></label>
+                <div id="passwordStrength" class="strength0"></div>
+                <div id="progressBar" style="width:200px;"> </div>
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.LozinkaPonovo, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LozinkaPonovo, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LozinkaPonovo, "", new { @class = "text-danger" })
+                @Html.MathCaptcha()
+                @*@Html.Captcha(3)*@
+                <br />
+                <p class="Error">  @ViewBag.ErrorMessage </p>
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+@*<script type="text/javascript">
+        $(function () {
+            $('DatumRodjenja').datetimepicker({
+                viewMode: 'years',
+                format: 'DD/MM/YYYY'
+            });
+        });
+    </script>*@

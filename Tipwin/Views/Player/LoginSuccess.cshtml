@@ -1,0 +1,8 @@
+﻿
+@{
+    ViewBag.Title = "LoginSuccess";
+}
+<h2>LoginSuccess</h2>
+Welcome @Session["korisnik"]
+<br />
+@Html.ActionLink("Logout", "Logout", "Player")
