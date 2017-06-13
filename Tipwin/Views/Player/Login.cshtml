@@ -1,11 +1,20 @@
 ﻿@model Tipwin.Models.Player
 @{
     ViewBag.Title = "Login";
+
+
 }
 @using (Html.BeginForm(FormMethod.Post))
 {
     @Html.AntiForgeryToken()
     <h2>@ViewBag.Error</h2>
+    <h2>@ViewBag.ErrorMessage</h2>
+    @TempData["novikorisnik"]
+
+    //  <div class="alert alert-success"></div>
+
+
+
     <div class="form-horizontal">
         <h4>Player</h4>
         <hr />
@@ -26,11 +35,13 @@
         </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Login" class="btn btn-default" OnClick="CheckRecord" />
+                <input type="submit" value="Login" class="btn btn-default" />
             </div>
         </div>
     </div>
 }
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("New Login", "Login", "Player", new { @class = "btn btn-sm" })
+    <br />
+    @Html.ActionLink("Back to List", "GetPlayer", "Player", new { @class = "btn btn-sm" })
 </div>

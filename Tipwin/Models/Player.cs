@@ -2,7 +2,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Web.ModelBinding;
-using System.Web.Mvc;
 
 namespace Tipwin.Models
 {
@@ -15,11 +14,13 @@ namespace Tipwin.Models
         public string Oslovljavanje { get; set; }
 
         [DataType(DataType.Text)]
+        [NotEqualTo("Lozinka", ErrorMessage = "Mora biti različito od lozinke")]
         [Required(ErrorMessage = "Molimo unesite svoje puno ime.Uplate ili ispalte bit će uspješno provedene samo u slučaju podudarnosti unesenog imena i prezimena ")]
         public string Ime { get; set; }
 
         [Required(ErrorMessage = "Molimo unesite prezime...")]
         [DataType(DataType.Text)]
+        [NotEqualTo("Lozinka", ErrorMessage = "Mora biti različito od lozinke")]
         public string Prezime { get; set; }
 
         [Required(ErrorMessage = "Molimo unesite datum....")]
@@ -32,6 +33,7 @@ namespace Tipwin.Models
         [DataType(DataType.EmailAddress)]
         [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Please enter a valid e-mail adress")]
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
+        [NotEqualTo("Lozinka", ErrorMessage = "Mora biti različito od lozinke")]
         [Display(Name = "El.pošta")]
         public string Email { get; set; }
 
@@ -81,17 +83,20 @@ namespace Tipwin.Models
         //+&=%_:;~@]{8,40}$")] ovaj dio javlja gresku   
         //[RegularExpression("[^d{5}(-d{4})?$]")]
 
-        [Required]
+        [Required(ErrorMessage = "Korisničko ime je zauzeto")]
+        [DataType(DataType.Text)]
         [Display(Name = "Korisničko ime")]
+
         [MinLength(6), MaxLength(20)]
         [NotEqualTo("Lozinka", ErrorMessage = "Korisničko ime i lozinka ne mogu biti isti")]
-        [Remote("IsUserNameAvailable", "Player", ErrorMessage = "Korisničko ime je zauzeto")]
+
+
         public string KorisnickoIme { get; set; }
 
         [Required(ErrorMessage = "Lozinka mora sadržavati velika i mala slova broj")]
         [MinLength(8), MaxLength(40)]
-        [RegularExpression("^[a-z0-9A-Z!&=%_:;~@_#$?{}|+,^.-]{8,40}$")]
-        [NotEqualTo("KorisnickoIme", ErrorMessage = "Lozinka ne može biti ista kao i korisničko ime")]
+        [RegularExpression("^[a-z0-9A-Z!&=%_:;~@_#$?{}|+,^.-]{8,40}$", ErrorMessage = "Lozinka mora sadržavati velika i mala slova broj")]
+        [NotEqualTo("KorisnickoIme", ErrorMessage = "Lozinka ne može biti ista kao i ime,prezime, korisničko ime")]
         [UIHint("password")]
         [DataType(DataType.Password)]
         public string Lozinka { get; set; }
@@ -99,7 +104,7 @@ namespace Tipwin.Models
 
         //  [Compare("Lozinka", ErrorMessage = "Lozinka nije ista")]
         [Required(ErrorMessage = "Lozinka nije ista")]
-        [RegularExpression("^[a-z0-9A-Z!&=%_:;~@_#$?{}|+,^.-]{8,40}$")]
+        [RegularExpression("^[a-z0-9A-Z!&=%_:;~@_#$?{}|+,^.-]{8,40}$", ErrorMessage = "Lozinka mora sadržavati velika i mala slova broj")]
         [UIHint("password")]
         [DataType(DataType.Password)]
         [MinLength(8), MaxLength(40)]

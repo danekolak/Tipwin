@@ -19,7 +19,7 @@ namespace Tipwin.Repository
 
 
             connection = new MySqlConnection(conString);
-            string selQuery = "SELECT * FROM player.players;";
+            string selQuery = "SELECT * FROM players;";
             MySqlCommand cmd = new MySqlCommand(selQuery, connection);
             MySqlDataAdapter da = new MySqlDataAdapter(cmd);
             DataTable dt = new DataTable();
@@ -76,8 +76,8 @@ namespace Tipwin.Repository
             cmd.Parameters.AddWithValue("@broj_telefona", player.BrojTelefona);
             cmd.Parameters.AddWithValue("@broj_mobitela", player.BrojMobitela);
             cmd.Parameters.AddWithValue("@korisnicko_ime", player.KorisnickoIme);
-            //  cmd.Parameters.AddWithValue("@lozinka", saltHashReturned);
-            cmd.Parameters.AddWithValue("@lozinka", player.Lozinka);
+            cmd.Parameters.AddWithValue("@lozinka", saltHashReturned);
+            //  cmd.Parameters.AddWithValue("@lozinka", player.Lozinka);
             cmd.Parameters.AddWithValue("@lozinka_ponovo", saltHashReturned);
             connection.Open();
             int i = cmd.ExecuteNonQuery();
@@ -88,57 +88,83 @@ namespace Tipwin.Repository
             else
                 return false;
         }
-        public bool IfExists()
-        {
+        //public bool IfExists()
+        //{
 
-            Player p1 = new Player();
-            bool result = false;
-            connection = new MySqlConnection(conString);
+        //    Player p1 = new Player();
+        //    bool result = false;
+        //    connection = new MySqlConnection(conString);
 
-            string selQuery = "SELECT korisnicko_ime FROM players WHERE korisnicko_ime=@korisnicko_ime";
-            // string selQuery = "SELECT * FROM players WHERE FirstName='" + p1.KorisnickoIme + "' lozinka='" + p1.Lozinka + "'";
-            MySqlCommand cmd = new MySqlCommand(selQuery, connection);
-            connection.Open();
-            MySqlDataReader reader = cmd.ExecuteReader();
+        //    string selQuery = "SELECT korisnicko_ime FROM players WHERE korisnicko_ime=@korisnicko_ime";
+        //    // string selQuery = "SELECT * FROM players WHERE FirstName='" + p1.KorisnickoIme + "' lozinka='" + p1.Lozinka + "'";
+        //    MySqlCommand cmd = new MySqlCommand(selQuery, connection);
+        //    connection.Open();
+        //    MySqlDataReader reader = cmd.ExecuteReader();
 
-            if (reader.Read())
-            {
-                result = true;
-            }
-            reader.Close();
-            connection.Close();
-            return result;
-        }
+        //    if (reader.Read())
+        //    {
+        //        result = true;
+        //    }
+        //    reader.Close();
+        //    connection.Close();
+        //    return result;
+        //}
 
-        public void CheckRecord()
-        {
+        //public void CheckRecord()
+        //{
 
-            using (MySqlConnection conn = new MySqlConnection(conString))
-            {
+        //    using (MySqlConnection conn = new MySqlConnection(conString))
+        //    {
 
-                string selQuery = "SELECT korisnicko_ime FROM players WHERE korisnicko_ime= @korisnicko_ime";
+        //        string selQuery = "SELECT korisnicko_ime FROM players WHERE korisnicko_ime= @korisnicko_ime";
 
-                using (MySqlCommand cmd = new MySqlCommand(selQuery, conn))
-                {
-                    MySqlParameter[] prms = new MySqlParameter[1];
-                    prms[0] = new MySqlParameter("@korisnicko_ime", MySqlDbType.VarChar, 45);
+        //        using (MySqlCommand cmd = new MySqlCommand(selQuery, conn))
+        //        {
+        //            MySqlParameter[] prms = new MySqlParameter[1];
+        //            prms[0] = new MySqlParameter("@korisnicko_ime", MySqlDbType.VarChar, 45);
 
 
-                    cmd.Parameters.AddRange(prms);
-                    conn.Open();
-                    object obj = cmd.ExecuteScalar();
-                    conn.Close();
-                    if (obj != null)
-                    {
-                        obj.ToString();
-                    }
-                    else
-                    {
-                        Console.WriteLine("Not Found");
-                    }
-                }
-            }
+        //            cmd.Parameters.AddRange(prms);
+        //            conn.Open();
+        //            object obj = cmd.ExecuteScalar();
+        //            conn.Close();
+        //            if (obj != null)
+        //            {
+        //                obj.ToString();
 
-        }
+        //            }
+        //            else
+        //            {
+        //                Console.WriteLine("Not Found");
+        //            }
+        //        }
+        //    }
+        //}
+        //public bool CheckUserData(string korisnickoIme, string lozinka)
+        //{
+        //    string selString = "SELECT korisnicko_ime,lozinka FROM players WHERE korisnicko_ime = @korisnicko_ime AND lozinka= @lozinka";
+        //    using (MySqlConnection conn = new MySqlConnection(conString))
+        //    {
+        //        conn.Open();
+        //        using (MySqlCommand cmd = new MySqlCommand(selString, conn))
+        //        {
+        //            cmd.Parameters.AddWithValue("@korisnicko_ime", korisnickoIme);
+        //            cmd.Parameters.AddWithValue("@lozinka", lozinka);
+
+        //            MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+        //            if (reader.Read())
+        //            {
+        //                return true;  // data exist
+        //            }
+        //            else
+        //            {
+        //                return false; //data not exist
+        //            }
+        //        }
+        //    }
+        //}
+
+
+
     }
 }

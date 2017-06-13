@@ -3,6 +3,6 @@
     ViewBag.Title = "LoginSuccess";
 }
 <h2>LoginSuccess</h2>
-Welcome @Session["korisnik"]
+<div class="alert alert-success">@Session["korisnik"]</div>
 <br />
-@Html.ActionLink("Logout", "Logout", "Player")
+@Html.ActionLink("Logout", "Login", "Player")
