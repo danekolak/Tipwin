@@ -106,33 +106,24 @@ namespace Tipwin.Controllers
         public ActionResult Login(Player player)
         {
 
-
-
             List<Player> listPlayer = new List<Player>();
             listPlayer = db.GetPlayers();
 
+            var korisnik = (listPlayer.Exists(s => s.KorisnickoIme.Contains(player.KorisnickoIme))
+            && listPlayer.Exists(s => s.Lozinka.Contains(player.Lozinka)));
 
-
-            var korisnik = (!listPlayer.Exists(s => s.KorisnickoIme.Contains(player.KorisnickoIme))
-            || !listPlayer.Exists(s => s.Lozinka.Contains(player.Lozinka)));
-
-
-
-
-
-            if (!korisnik)
+            if (korisnik)
             {
-                Response.Cookies["KorisnickoIme"].Value = "Danijel";
-                Response.Cookies["KorisnickoIme"].Expires = DateTime.Now.AddMinutes(1);
-                Response.Cookies["Lozinka"].Value = "Danijel123";
-                Response.Cookies["Lozinka"].Expires = DateTime.Now.AddMinutes(1);
+                Response.Cookies["KorisnickoIme"].Value = player.KorisnickoIme;
+                Response.Cookies["KorisnickoIme"].Expires = DateTime.Now.AddSeconds(40);
+                Response.Cookies["Lozinka"].Value = player.Lozinka;
+                Response.Cookies["Lozinka"].Expires = DateTime.Now.AddSeconds(40);
 
                 if (Request.Cookies["KorisnickoIme"] != null)
                 {
                     string cvalue = Request.Cookies["KorisnickoIme"].Value.ToString();
                     ViewData["Value"] = cvalue;
                 }
-
 
                 string cookieValue;
                 if (Request.Cookies["cookie"] != null)
@@ -143,10 +134,6 @@ namespace Tipwin.Controllers
                 {
                     Response.Cookies["cookie"].Value = "cookie value";
                 }
-
-
-
-
 
                 ////Cookie
                 //HttpCookie hc = new HttpCookie("userInfo", player.KorisnickoIme);
@@ -216,15 +203,9 @@ namespace Tipwin.Controllers
         {
             Player player = new Player();
 
-
-
-
-
-
-
             if (Request.Cookies["cookie"] != null)
             {
-                Response.Cookies["cookie"].Expires = DateTime.Now.AddDays(-1);
+                Response.Cookies["cookie"].Expires = DateTime.Now.AddSeconds(20);
             }
 
 
