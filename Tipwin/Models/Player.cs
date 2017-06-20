@@ -25,7 +25,11 @@ namespace Tipwin.Models
 
         [Required(ErrorMessage = "Molimo unesite datum....")]
         [Display(Name = "Datum rođenja")]
+        [DisplayFormat(DataFormatString = "{0:d}", ApplyFormatInEditMode = true)]
         [DataType(DataType.Date)]
+        // [Range(typeof(DateTime), "01/01/1950", "01/01/1999", ErrorMessage = "Not Valid")]
+        // [DateRange("01/01/1999", ErrorMessage = "Datum nije validan")]
+        // [CurrentDateAttribute]
         public DateTime DatumRodjenja { get; set; }
 
 
@@ -86,7 +90,6 @@ namespace Tipwin.Models
         [Required(ErrorMessage = "Korisničko ime je zauzeto")]
         [DataType(DataType.Text)]
         [Display(Name = "Korisničko ime")]
-
         [MinLength(6), MaxLength(20)]
         [NotEqualTo("Lozinka", ErrorMessage = "Korisničko ime i lozinka ne mogu biti isti")]
 
@@ -102,7 +105,7 @@ namespace Tipwin.Models
         public string Lozinka { get; set; }
 
 
-        //  [Compare("Lozinka", ErrorMessage = "Lozinka nije ista")]
+        [Compare("Lozinka", ErrorMessage = "Lozinka nije ista")]
         [Required(ErrorMessage = "Lozinka nije ista")]
         [RegularExpression("^[a-z0-9A-Z!&=%_:;~@_#$?{}|+,^.-]{8,40}$", ErrorMessage = "Lozinka mora sadržavati velika i mala slova broj")]
         [UIHint("password")]
@@ -112,5 +115,7 @@ namespace Tipwin.Models
         public string LozinkaPonovo { get; set; }
 
 
+        [Display(Name = "Pogrešna lozinka")]
+        public string PogresnaLozinka { get; set; }
     }
 }

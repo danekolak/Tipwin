@@ -2,7 +2,14 @@
 @{
     ViewBag.Title = "LoginSuccess";
 }
-<h2>LoginSuccess</h2>
-<div class="alert alert-success">@Session["korisnik"]</div>
-<br />
-@Html.ActionLink("Logout", "Login", "Player")
+@Html.AntiForgeryToken()
+@if (Session["korisnickoime"] != null)
+{
+    <h4>Hello @Session["korisnickoime"].ToString()</h4>
+    <div class="alert alert-success">@Session["korisnik"]</div>
+    <br />
+    @Html.ActionLink("Logout", "Login", "Player")
+
+}
+<h2>Read</h2>
+Cookie Value = @ViewData["Value"]

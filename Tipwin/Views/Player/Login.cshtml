@@ -7,8 +7,10 @@
 @using (Html.BeginForm(FormMethod.Post))
 {
     @Html.AntiForgeryToken()
-    <h2>@ViewBag.Error</h2>
-    <h2>@ViewBag.ErrorMessage</h2>
+    <h4>@ViewBag.Error</h4>
+    <h4>@ViewBag.ErrorMessage</h4>
+    <h4>@ViewBag.Count</h4>
+    <h4>@ViewBag.Attempts</h4>
     @TempData["novikorisnik"]
 
     //  <div class="alert alert-success"></div>
@@ -16,7 +18,6 @@
 
 
     <div class="form-horizontal">
-        <h4>Player</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">

@@ -1,6 +1,7 @@
 ﻿using CaptchaMvc.HtmlHelpers;
 using System;
 using System.Collections.Generic;
+using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
 using Tipwin.Models;
@@ -9,6 +10,7 @@ using Tipwin.Repository;
 
 namespace Tipwin.Controllers
 {
+
     public class PlayerController : Controller
     {
         PlayerDb db = new PlayerDb();
@@ -104,8 +106,12 @@ namespace Tipwin.Controllers
         public ActionResult Login(Player player)
         {
 
+
+
             List<Player> listPlayer = new List<Player>();
             listPlayer = db.GetPlayers();
+
+
 
             var korisnik = (!listPlayer.Exists(s => s.KorisnickoIme.Contains(player.KorisnickoIme))
             || !listPlayer.Exists(s => s.Lozinka.Contains(player.Lozinka)));
@@ -113,12 +119,60 @@ namespace Tipwin.Controllers
 
 
 
+
             if (!korisnik)
             {
+                Response.Cookies["KorisnickoIme"].Value = "Danijel";
+                Response.Cookies["KorisnickoIme"].Expires = DateTime.Now.AddMinutes(1);
+                Response.Cookies["Lozinka"].Value = "Danijel123";
+                Response.Cookies["Lozinka"].Expires = DateTime.Now.AddMinutes(1);
+
+                if (Request.Cookies["KorisnickoIme"] != null)
+                {
+                    string cvalue = Request.Cookies["KorisnickoIme"].Value.ToString();
+                    ViewData["Value"] = cvalue;
+                }
+
+
+                string cookieValue;
+                if (Request.Cookies["cookie"] != null)
+                {
+                    cookieValue = Request.Cookies["cookie"].ToString();
+                }
+                else
+                {
+                    Response.Cookies["cookie"].Value = "cookie value";
+                }
+
+
+
+
+
+                ////Cookie
+                //HttpCookie hc = new HttpCookie("userInfo", player.KorisnickoIme);
+                ////Expire
+                //hc.Expires = DateTime.Now.AddSeconds(15);
+                ////Save data u Cookie
+                //HttpContext.Response.SetCookie(hc);
+                ////Get data iz Cookie
+                //HttpCookie nc = Request.Cookies["userInfo"];
+                //return View("LoginSuccess");
+
+                //Cookie
+                //HttpCookie hc = new HttpCookie("userInfo");
+                //hc["KorisnickoIme"] = player.KorisnickoIme;
+                //hc["Lozinka"] = player.Lozinka;
+
+                //hc.Expires = DateTime.Now.AddSeconds(10);
+                //Response.Cookies.Add(hc);
+
+                //   Response.Redirect("Login");
+
+                //Session
+                Session["korisnickoime"] = player.KorisnickoIme.ToString();
+                Session["lozinka"] = player.Lozinka.ToString();
+
                 Session["korisnik"] = player.KorisnickoIme + " je uspjesno prijavljen/a";
-
-
-
 
 
                 //FormsAuthenticationTicket fat = new FormsAuthenticationTicket(1, "Player", DateTime.Now, DateTime.Now.AddMinutes(2), false, JsonConvert.SerializeObject(korisnik));
@@ -126,22 +180,34 @@ namespace Tipwin.Controllers
                 //hc.Expires = DateTime.Now.AddMinutes(2);
                 //Response.Cookies.Add(hc);
 
-
                 return View("LoginSuccess", listPlayer);
             }
 
-
-
-
             else
             {
-                ModelState.AddModelError("", "Pogrešno korisničko ime ili lozinka");
+                //int max = 3, count = 0;
+                //while (max > count)
+                //{
+                //    count++;
+
+                //    ViewBag.Count = $"broj pokušaja prijave {count}";
+                //    db.InsertPlayer(player);
+                //    return RedirectToAction("LoginInvalid", listPlayer);
+                //}
+
+                ModelState.AddModelError("", $"Pogrešno korisničko ime ili lozinka ");
+
                 return View();
 
             }
-
-
         }
+
+        public ActionResult LoginInvalid()
+        {
+            ViewBag.ErrorLogin = "Broj neuspjelih pokusaja logiranja ";
+            return View();
+        }
+
 
 
 
@@ -150,15 +216,48 @@ namespace Tipwin.Controllers
         {
             Player player = new Player();
 
-            ViewBag.Message = "Login Success";
+
+
+
+
+
+
+            if (Request.Cookies["cookie"] != null)
+            {
+                Response.Cookies["cookie"].Expires = DateTime.Now.AddDays(-1);
+            }
+
+
+            HttpCookie hc = Request.Cookies["userInfo"];
+            if (hc != null)
+            {
+                player.KorisnickoIme = hc["KorisnickoIme"];
+                player.Lozinka = hc["Lozinka"];
+
+
+                Response.Cookies.Add(hc);
+
+                Response.Redirect("LoginSuccess");
+            }
+            if (Session["korisnickoime"] != null)
+            {
+                ViewBag.Message = "Login Success";
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+
+
 
 
             // var timeSpan = new TimeSpan(0, 0, 20);
-            if (TimeSpan.FromSeconds(20) != null)
-            {
-                return RedirectToAction("Create");
-            }
-            return View(player);
+            //if (TimeSpan.FromSeconds(20) != null)
+            //{
+            //    return RedirectToAction("Create");
+            //}
+            //return View(player);
         }
 
         public ActionResult Logout()
@@ -173,7 +272,40 @@ namespace Tipwin.Controllers
         }
 
 
+        //[HttpPost]
+        //public JsonResult IsValidDateOfBirth(string dob)
+        //{
+        //    var min = DateTime.Now.Date.AddYears(-18);
+        //    var max = DateTime.Now.Date.AddYears(-110);
+        //    var msg = string.Format("Please enter a value between {0:dd/MM/yyyy} and {1:dd/MM/yyyy}", max, min);
+        //    try
+        //    {
+        //        var date = DateTime.Parse(dob);
+        //        if (date > min || date < max)
+        //            return Json(msg);
+        //        else
+        //            return Json(true);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return Json(msg);
+        //    }
+        //}
 
-
+        //public class ValidateDateRange : ValidationAttribute
+        //{
+        //    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        //    {
+        //        // your validation logic
+        //        if (value >= Convert.ToDateTime("01/10/2008") && value <= Convert.ToDateTime("01/12/2008"))
+        //        {
+        //            return ValidationResult.Success;
+        //        }
+        //        else
+        //        {
+        //            return new ValidationResult("Date is not in given range.");
+        //        }
+        //    }
+        //}
     }
 }
