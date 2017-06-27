@@ -47,7 +47,8 @@ namespace Tipwin.Repository
                     KorisnickoIme = Convert.ToString(dr["korisnicko_ime"]),
                     Lozinka = Convert.ToString(dr["lozinka"]),
                     LozinkaPonovo = Convert.ToString(dr["lozinka_ponovo"]),
-                    PogresnaLozinka = Convert.ToString(dr["pogresna_lozinka"])
+                    // PogresnaLozinka = Convert.ToString(dr["pogresnaLozinka"])
+
                 };
                 listPlayers.Add(p1);
             }
@@ -59,7 +60,7 @@ namespace Tipwin.Repository
             string saltHashReturned = HashedPassword.Sha256(player.Lozinka);
 
             connection = new MySqlConnection(conString);
-            string insQuery = "INSERT INTO players VALUES (@id,@oslovljavanje,@ime,@prezime,@datum_rodjenja,@email,@email_ponovo,@ulica,@kucni_broj,@grad_mjesto,@postanski_broj,@drzava,@jezik_za_kontakt,@broj_telefona,@broj_mobitela,@korisnicko_ime,@lozinka,@lozinka_ponovo,@pogresna_lozinka)";
+            string insQuery = "INSERT INTO players VALUES (@id,@oslovljavanje,@ime,@prezime,@datum_rodjenja,@email,@email_ponovo,@ulica,@kucni_broj,@grad_mjesto,@postanski_broj,@drzava,@jezik_za_kontakt,@broj_telefona,@broj_mobitela,@korisnicko_ime,@lozinka,@lozinka_ponovo)";
             MySqlCommand cmd = new MySqlCommand(insQuery, connection);
             cmd.Parameters.AddWithValue("@id", player.Id);
             cmd.Parameters.AddWithValue("@oslovljavanje", player.Oslovljavanje);
@@ -80,40 +81,159 @@ namespace Tipwin.Repository
             cmd.Parameters.AddWithValue("@lozinka", saltHashReturned);
             //  cmd.Parameters.AddWithValue("@lozinka", player.Lozinka);
             cmd.Parameters.AddWithValue("@lozinka_ponovo", saltHashReturned);
-            cmd.Parameters.AddWithValue("@pogresna_lozinka", player.PogresnaLozinka);
+            //cmd.Parameters.AddWithValue("@pogresnaLozinka", player.PogresnaLozinka);
+            //cmd.Parameters.AddWithValue("@rememberme", player.RememberMe);
             connection.Open();
             int i = cmd.ExecuteNonQuery();
             connection.Close();
 
-            if (i >= 1)
-                return true;
-            else
-                return false;
+            if (i >= 1) return true; else return false;
         }
 
-
-        public bool InvalidLogin(Player player)
+        public bool DeletePlayer(int id)
         {
-
-
-
             connection = new MySqlConnection(conString);
-            string insQuery = "INSERT INTO players VALUES (@pogresna_lozinka)";
-            MySqlCommand cmd = new MySqlCommand(insQuery, connection);
-
-            cmd.Parameters.AddWithValue("@pogresna_lozinka", player.PogresnaLozinka);
-
-
+            string delQuery = "DELETE FROM players WHERE id=@id";
+            MySqlCommand cmd = new MySqlCommand(delQuery, connection);
+            cmd.Parameters.AddWithValue("@id", id);
 
             connection.Open();
             int i = cmd.ExecuteNonQuery();
             connection.Close();
-
-            if (i >= 1)
-                return true;
-            else
-                return false;
+            if (i >= 1) return true; else return false;
         }
+
+
+        //public bool FindEmail(string email)
+        //{
+        //    connection = new MySqlConnection(conString);
+        //    string emailQuery = "select email as email from players where email = @email";
+        //    MySqlCommand cmd = new MySqlCommand(emailQuery, connection);
+        //    cmd.Parameters.AddWithValue("@email", email);
+
+        //    connection.Open();
+        //    int i = cmd.ExecuteNonQuery();
+        //    connection.Close();
+
+        //    if (i >= 1) return true; else return false;
+
+        //}
+
+        //public bool EmailConfirmation(string korisnickoIme)
+        //{
+        //    bool flag = false;
+        //    string res = null;
+        //    connection = new MySqlConnection(conString);
+        //    string emailQuery = "select emailConfirmed as emailConfirmed from players where id = @id";
+        //    MySqlCommand cmd = new MySqlCommand(emailQuery, connection);
+        //    cmd.Parameters.AddWithValue("@korisnickoIme", korisnickoIme);
+        //    connection.Open();
+        //    using (MySqlDataReader reader = cmd.ExecuteReader())
+        //    {
+        //        if (reader.HasRows)
+        //        {
+        //            if (reader.Read())
+        //            {
+        //                res = reader["emailConfirmed"].ToString();
+        //                if (res == "false")  //ovdje moguca greska
+        //                {
+        //                    flag = false;
+        //                }
+        //                else
+        //                {
+        //                    flag = true;
+        //                }
+        //            }
+        //        }
+        //        connection.Close();
+        //    }
+        //    return flag;
+
+        //}
+
+        //public bool EmailConfirmationById(string korisnickoIme)
+        //{
+        //    connection = new MySqlConnection(conString);
+        //    string query = "select emailConfirmed as emailConfirmed from players where id = @id";
+        //    MySqlCommand cmd = new MySqlCommand(query, connection);
+        //    cmd.Parameters.AddWithValue("@korisnickoIme", korisnickoIme);
+
+        //    connection.Open();
+        //    int i = cmd.ExecuteNonQuery();
+        //    connection.Close();
+
+        //    if (i >= 1) return true; else return false;
+
+        //}
+
+        //public bool FindUserName(string korisnickoIme)
+        //{
+        //    connection = new MySqlConnection(conString);
+        //    string emailQuery = "select korisnickoIme as korisnickoIme from players where korisnickoIme = @korisnickoIme";
+        //    MySqlCommand cmd = new MySqlCommand(emailQuery, connection);
+        //    cmd.Parameters.AddWithValue("@korisnickoIme", korisnickoIme);
+
+        //    connection.Open();
+        //    int i = cmd.ExecuteNonQuery();
+        //    connection.Close();
+
+        //    if (i >= 1) return true; else return false;
+        //}
+
+        //public bool UpdateDatabase(string korisnickoIme)
+        //{
+        //    connection = new MySqlConnection(conString);
+        //    string query = "update players set emailLinkDate = '" + DateTime.Now + "'  where korisnickoIme=@korisnickoIme";
+        //    MySqlCommand cmd = new MySqlCommand(query, connection);
+        //    cmd.Parameters.AddWithValue("@korisnickoIme", korisnickoIme);
+
+        //    connection.Open();
+        //    int i = cmd.ExecuteNonQuery();
+        //    connection.Close();
+
+        //    if (i >= 1) return true; else return false;
+        //}
+
+        //public bool UpdateLastLoginDate(string korisnickoIme)
+        //{
+        //    connection = new MySqlConnection(conString);
+        //    string query = "update players set lastLoginDate = '" + DateTime.Now + "'  where korisnickoIme=@korisnickoIme";
+        //    MySqlCommand cmd = new MySqlCommand(query, connection);
+        //    cmd.Parameters.AddWithValue("@korisnickoIme", korisnickoIme);
+
+        //    connection.Open();
+        //    int i = cmd.ExecuteNonQuery();
+        //    connection.Close();
+
+        //    if (i >= 1) return true; else return false;
+        //}
+
+
+
+
+
+        //public bool InvalidLogin(Player player)
+        //{
+
+
+
+        //    connection = new MySqlConnection(conString);
+        //    string insQuery = "INSERT INTO players VALUES (@pogresnaLozinka)";
+        //    MySqlCommand cmd = new MySqlCommand(insQuery, connection);
+
+        //    cmd.Parameters.AddWithValue("@pogresnaLozinka", player.PogresnaLozinka);
+
+
+
+        //    connection.Open();
+        //    int i = cmd.ExecuteNonQuery();
+        //    connection.Close();
+
+        //    if (i >= 1)
+        //        return true;
+        //    else
+        //        return false;
+        //}
 
 
         //public bool InvalidLogin(string korisnickoIme, string lozinka)

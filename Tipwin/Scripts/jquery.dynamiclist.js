@@ -7,9 +7,12 @@
     var privateMethods = {
         addItem: function(e, options)
         {
-            e.preventDefault();
+            if (e)
+            {
+                e.preventDefault();
+            }
 
-            jQuery(e).prop("disabled", true);
+            options.addButton.prop("disabled", true);
 
             // build the html field prefix
             var index = privateMethods.getNewIndex(options.list, options.itemSelector);
@@ -55,14 +58,36 @@
                 }
 
                 options.addButton.prop("disabled", false);
-            }).error(function(xhr)
+            }).fail(function (xhr)
             {
                 if (xhr.status === 401)
                 {
                     // let the user know that their session timed out.
-                    alert("Your session has timed out. Please refresh the page and try again.");
+                    var message = "Your session has timed out. Please refresh the page and try again.";
+                    if (console && console.log)
+                    {
+                        console.log(message);
+                    }
+                    else
+                    {
+                        alert(message);
+                    }
                 }
             });
+        },
+        removeItem: function(item, options)
+        {
+            if (options.removeConfirmation && !confirm(options.removeConfirmation)) {
+                return;
+            }
+
+            var $item = $(item);
+
+            if (options.itemRemoved) {
+                options.itemRemoved($item);
+            }
+
+            $item.remove();
         },
         appendRemoveAndIndex: function($item, index, indexName, options)
         {
@@ -87,14 +112,10 @@
 
             // delete button handler
             // IE7 has a problem with using this with live(), other wise I would use that instead
-            jQuery(".delete-item", $item).click(function()
+            jQuery(".delete-item", $item).click(function(e)
             {
-                $item.remove();
-
-                if (options.itemRemoved)
-                {
-                    options.itemRemoved($item);
-                }
+                e.preventDefault();
+                privateMethods.removeItem($item, options);
             });
         },
         getBaseItemPrefix: function(baseHtmlFieldPrefix, property)
@@ -223,12 +244,9 @@
 
                     if (options.itemAdded)
                     {
-                        $list.each(function (i, list)
+                        $(options.itemSelector, $list).each(function(i, item)
                         {
-                            $(list).each(function(j, item)
-                            {
-                                options.itemAdded(item);
-                            });
+                            options.itemAdded(item);
                         });
                     }
                 }
@@ -249,8 +267,15 @@
             return this.each(function()
             {
                 var $list = jQuery(this);
-                $list.find(".add-item").click();
+                privateMethods.addItem(null, $list.data("dynamiclist"));
             });
+        },
+        remove: function(item)
+        {
+            var $item = $(item);
+            var $wrapper = $(item).parents(".dynamic-list");
+            var options = $wrapper.data("dynamiclist");
+            privateMethods.removeItem($item, options);
         },
         destroy: function()
         {
@@ -305,6 +330,8 @@
         itemAdded: function(item) { },
         // Occurs after an item is removed from the list
         itemRemoved: function (item) { },
+        // If defined, will display a confirmation dialog with the given message.
+        removeConfirmation: null,
         // define custom templates if you need more control over the styling
         templates : {
             table: {

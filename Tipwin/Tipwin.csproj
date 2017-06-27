@@ -137,6 +137,7 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\Datepicker\date.js" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Content\PasswordStrength\password.css" />
     <Content Include="Content\PasswordStrength\password.js" />
@@ -273,13 +274,15 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
-    <None Include="Scripts\jquery-3.1.1.intellisense.js" />
     <Content Include="Scripts\ExtendedValidation.js" />
     <Content Include="Scripts\ExtendedValidation.min.js" />
+    <None Include="Scripts\jquery-3.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.1.1.js" />
     <Content Include="Scripts\jquery-3.1.1.min.js" />
     <Content Include="Scripts\jquery-3.1.1.slim.js" />
     <Content Include="Scripts\jquery-3.1.1.slim.min.js" />
+    <Content Include="Scripts\jquery-3.1.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.1.1.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery-ui-1.12.1.js" />
     <Content Include="Scripts\jquery-ui-1.12.1.min.js" />
@@ -299,17 +302,17 @@
     <Content Include="Scripts\moment.js" />
     <Content Include="Scripts\moment.min.js" />
     <Content Include="Web.config" />
-    <Content Include="Views\Player\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Date\ValidateAgeAttribute.cs" />
+    <Compile Include="EmailConfirmation\EmailManager.cs" />
     <Compile Include="Hash\HashedPassword.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PlayerController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\DateRangeAttribute.cs" />
     <Compile Include="Models\Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\PlayerDb.cs" />
@@ -321,14 +324,17 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Player\GetPlayer.cshtml" />
-    <Content Include="Scripts\jquery-3.1.1.slim.min.map" />
-    <Content Include="Scripts\jquery-3.1.1.min.map" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Player\Index.cshtml" />
     <Content Include="Views\Home\Create.cshtml" />
     <Content Include="Views\Player\Login.cshtml" />
     <Content Include="Views\Player\LoginSuccess.cshtml" />
     <Content Include="Views\Player\LoginInvalid.cshtml" />
+    <Content Include="Views\Player\EmailConfirmationFailed.cshtml" />
+    <Content Include="Views\Player\SendConfirmationMail.cshtml" />
+    <Content Include="Views\Player\Delete.cshtml" />
+    <Content Include="Views\Player\EmailConfirmation.cshtml" />
+    <Content Include="Views\Player\Create.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

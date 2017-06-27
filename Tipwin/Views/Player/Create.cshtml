@@ -3,46 +3,54 @@
 @using Tipwin;
 @using CaptchaMvc;
 @{
-
     ViewBag.Title = "Create";
-    List<SelectListItem> p1 = new List<SelectListItem>();
-    ViewBag.List = p1;
-
-    p1.Add(new SelectListItem() { Text = "Gospodin" });
-    p1.Add(new SelectListItem() { Text = "Gospođica/Gospođa" });
-
-    List<SelectListItem> d1 = new List<SelectListItem>();
-
-    d1.Add(new SelectListItem() { Text = "Hrvatska" });
-    d1.Add(new SelectListItem() { Text = "Austrija" });
-    d1.Add(new SelectListItem() { Text = "Bosna i Hercegovina" });
-
-    d1.Add(new SelectListItem() { Text = "Njemačka" });
-    d1.Add(new SelectListItem() { Text = "Rusija" });
-    d1.Add(new SelectListItem() { Text = "Slovenija" });
-    d1.Add(new SelectListItem() { Text = "Švedska" });
 
 
-
-    List<SelectListItem> j1 = new List<SelectListItem>();
-
-    j1.Add(new SelectListItem() { Text = "Hrvatski" });
-    j1.Add(new SelectListItem() { Text = "Engleski" });
-    j1.Add(new SelectListItem() { Text = "Francuski" });
-
-
-    j1.Add(new SelectListItem() { Text = "Njemački" });
-    j1.Add(new SelectListItem() { Text = "Slovenski" });
-    j1.Add(new SelectListItem() { Text = "Ruski" });
 }
-@using (Html.BeginForm())
+@using (Html.BeginForm(FormMethod.Post))
 {
     @Html.AntiForgeryToken()
+    //{ var fieldName = ViewData.TemplateInfo.HtmlFieldPrefix; }
+
 
     <div class="form-horizontal">
         <br />
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @{
+
+            List<SelectListItem> p1 = new List<SelectListItem>();
+            ViewBag.List = p1;
+
+            p1.Add(new SelectListItem() { Text = "Gospodin" });
+            p1.Add(new SelectListItem() { Text = "Gospođica/Gospođa" });
+
+            List<SelectListItem> d1 = new List<SelectListItem>();
+
+            d1.Add(new SelectListItem() { Text = "Hrvatska" });
+            d1.Add(new SelectListItem() { Text = "Austrija" });
+            d1.Add(new SelectListItem() { Text = "Bosna i Hercegovina" });
+
+            d1.Add(new SelectListItem() { Text = "Njemačka" });
+            d1.Add(new SelectListItem() { Text = "Rusija" });
+            d1.Add(new SelectListItem() { Text = "Slovenija" });
+            d1.Add(new SelectListItem() { Text = "Švedska" });
+
+
+
+            List<SelectListItem> j1 = new List<SelectListItem>();
+
+            j1.Add(new SelectListItem() { Text = "Hrvatski" });
+            j1.Add(new SelectListItem() { Text = "Engleski" });
+            j1.Add(new SelectListItem() { Text = "Francuski" });
+
+
+            j1.Add(new SelectListItem() { Text = "Njemački" });
+            j1.Add(new SelectListItem() { Text = "Slovenski" });
+            j1.Add(new SelectListItem() { Text = "Ruski" });
+
+
+        }
         <div class="form-group">
             @Html.LabelFor(model => model.Oslovljavanje, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="dropdown col-md-10">
@@ -145,16 +153,6 @@
                 @Html.ValidationMessageFor(model => model.KorisnickoIme, "", new { @class = "text-danger" })
             </div>
         </div>
-        @*<div class="form-group">
-                @Html.LabelFor(model => model.Lozinka, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Lozinka, new { htmlAttributes = new { @class = "form-control" }, onkeyup = "passwordStrength(this.value)" })
-                    @Html.ValidationMessageFor(model => model.Lozinka, "", new { @class = "text-danger" }) <br />
-                    <label for="passwordStrength">Password strength</label>
-                    <div id="passwordDescription">Password not entered</div>
-                    <div id="passwordStrength" class="strength0"></div>
-                </div>
-            </div>*@
         <div class="form-group">
             @Html.LabelFor(model => model.Lozinka, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -173,21 +171,33 @@
                 @Html.MathCaptcha()
                 @*@Html.Captcha(3)*@
                 <br />
-                <p class="Error">  @ViewBag.ErrorMessage </p>
+                @*<p class="Error">  @ViewBag.ErrorMessage </p>*@
                 <div class="col-md-offset-2 col-md-10">
                     <input type="submit" value="Create" class="btn btn-default" />
                 </div>
             </div>
         </div>
     </div>
-}
+            }
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
-<link href="~/Content/PasswordStrength/password.css" rel="stylesheet" />
-<script src="~/Content/PasswordStrength/password.js"></script>
-<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
 <script src="~/Scripts/jquery.validate.min.js"></script>
 <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
-<script src="~/Scripts/bootstrap.min.js"></script>
-<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+@*<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>*@
+<link href="~/Content/PasswordStrength/password.css" rel="stylesheet" />
+<script src="~/Content/PasswordStrength/password.js"></script>
+@*<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>*@
+@*<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />*@
