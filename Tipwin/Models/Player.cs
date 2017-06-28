@@ -54,7 +54,8 @@ namespace Tipwin.Models
 
         [Required(ErrorMessage = "Molimo potvrdite el poštu....")]
         [System.ComponentModel.DataAnnotations.Compare("Email", ErrorMessage = "El pošta adresa nije ista")]
-        [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Please enter a valid e-mail adress")]
+        // [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Please enter a valid e-mail adress")]
+        [RegularExpression(@"^([\w-\.]+)@((\[[0-9]{1,3]\.)|(([\w-]+\.)+))([a-zA-Z{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Unesite ispravnu el. poštu")]
         [Display(Name = "Ponovite el. poštu")]
         [DataType(DataType.EmailAddress)]
         public string EmailPonovo { get; set; }
@@ -130,13 +131,14 @@ namespace Tipwin.Models
         [System.ComponentModel.DataAnnotations.Compare("Lozinka", ErrorMessage = "Lozinka nije ista")]
         [Display(Name = "Ponovite lozinku")]
         public string LozinkaPonovo { get; set; }
+        public bool RememberMe { get; set; }
 
 
         //[Display(Name = "Pogrešna lozinka")]
         //public string PogresnaLozinka { get; set; }
 
 
-        //public bool RememberMe { get; set; }
+
 
         //public string ReturnUrl { get; set; }
 

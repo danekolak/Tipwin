@@ -1,6 +1,7 @@
 ﻿using CaptchaMvc.HtmlHelpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
@@ -93,13 +94,13 @@ namespace Tipwin.Controllers
             List<Player> listPlayer = new List<Player>();
 
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && this.IsCaptchaValid("Correct"))
             {
                 try
                 {
 
-                    // this.IsCaptchaValid("");
-                    WebMail.Send(player.Email, "Login Link", "https://app1.4tipnet.com/mail-verification.aspx?mailkey=dXNlcj1EYW5pamVsMDAzMjQma2V5PWI0OWIzZGM2MWNhNDRjMzhiYTBlYzlmODRjMzg5ZDgy");
+
+                    WebMail.Send(player.Email, "Login Link", "http://localhost:60387/Player/Login");
 
                     db.InsertPlayer(player);
                     TempData["novikorisnik"] = player.KorisnickoIme + " je uspješno registriran/a. ";
@@ -118,11 +119,11 @@ namespace Tipwin.Controllers
                 }
 
             }
-            //else if (!this.IsCaptchaValid("is not valid"))
-            //{
-            //    ModelState.AddModelError("", "Captcha not valid");
-            //    return View(player);
-            //}
+            else if (!this.IsCaptchaValid("is not valid"))
+            {
+                ModelState.AddModelError("", "Captcha not valid");
+                return View(player);
+            }
             else if (player.KorisnickoIme == player.Lozinka)
             {
                 ModelState.AddModelError("", "");
@@ -133,11 +134,11 @@ namespace Tipwin.Controllers
                 ModelState.AddModelError("", "Lozinka mora biti različita od el. pošte");
                 return View(player);
             }
-            //else if (player.Email == "email")
-            //{
-            //    ModelState.AddModelError("", "El. pošta je zauzeta");
-            //    return View(player);
-            //}
+            else if (player.Email == "email")
+            {
+                ModelState.AddModelError("", "El. pošta je zauzeta");
+                return View(player);
+            }
 
 
             else if (player.Email != player.EmailPonovo)
@@ -251,96 +252,123 @@ namespace Tipwin.Controllers
             List<Player> listPlayer = new List<Player>();
             listPlayer = db.GetPlayers();
 
-            var korisnik = (listPlayer.Exists(s => s.KorisnickoIme.Equals(player.KorisnickoIme))
-            || listPlayer.Exists(s => s.Lozinka.Equals(player.Lozinka)));
+            // var korisnik = listPlayer.Exists(s => s.KorisnickoIme.Equals(player.KorisnickoIme)) && listPlayer.Exists(l => l.Lozinka.Equals(player.Lozinka));
 
 
+            var korisnik = listPlayer.Single(u => u.KorisnickoIme == player.KorisnickoIme && u.Lozinka == player.Lozinka);
 
-            int count = 0;
-            if (korisnik)
+
+            if (korisnik != null)
             {
-                //FormsAuthentication.SetAuthCookie(player.KorisnickoIme, player.RememberMe);
-                //if (this.Url.IsLocalUrl(returnUrl))
-                //{
-                //    return Redirect(returnUrl);
-                //}
-                //else
-                //{
-                //    return RedirectToAction("GetPlayer", "Player");
-                //}
+                Session["id"] = player.KorisnickoIme.ToString();
+                Session["korisnickoIme"] = player.Lozinka.ToString();
+                return RedirectToAction("LoginSuccess");
 
-
-                Response.Cookies["KorisnickoIme"].Value = player.KorisnickoIme;
-                Response.Cookies["KorisnickoIme"].Expires = DateTime.Now.AddMinutes(2);
-                Response.Cookies["Lozinka"].Value = player.Lozinka;
-                Response.Cookies["Lozinka"].Expires = DateTime.Now.AddMinutes(2);
-
-                if (Request.Cookies["KorisnickoIme"] != null)
-                {
-                    string cvalue = Request.Cookies["KorisnickoIme"].Value.ToString();
-                    ViewData["Value"] = cvalue;
-                }
-
-                //string cookieValue;
-                //if (Request.Cookies["cookie"] != null)
-                //{
-                //    cookieValue = Request.Cookies["cookie"].ToString();
-                //}
-                //else
-                //{
-                //    Response.Cookies["cookie"].Value = "cookie value";
-                //}
-
-                ////Cookie
-                //HttpCookie hc = new HttpCookie("userInfo", player.KorisnickoIme);
-                ////Expire
-                //hc.Expires = DateTime.Now.AddSeconds(15);
-                ////Save data u Cookie
-                //HttpContext.Response.SetCookie(hc);
-                ////Get data iz Cookie
-                //HttpCookie nc = Request.Cookies["userInfo"];
-                //return View("LoginSuccess");
-
-                //Cookie
-                //HttpCookie hc = new HttpCookie("userInfo");
-                //hc["KorisnickoIme"] = player.KorisnickoIme;
-                //hc["Lozinka"] = player.Lozinka;
-
-                //hc.Expires = DateTime.Now.AddSeconds(10);
-                //Response.Cookies.Add(hc);
-
-                //   Response.Redirect("Login");
-
-                //Session
-                //Session["korisnickoime"] = player.KorisnickoIme.ToString();
-                //Session["lozinka"] = player.Lozinka.ToString();
-
-                //Session["korisnik"] = player.KorisnickoIme + " je uspjesno prijavljen/a";
-
-
-                //FormsAuthenticationTicket fat = new FormsAuthenticationTicket(1, "Player", DateTime.Now, DateTime.Now.AddMinutes(2), false, JsonConvert.SerializeObject(korisnik));
-                //HttpCookie hc = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(fat));
-                //hc.Expires = DateTime.Now.AddMinutes(2);
-                //Response.Cookies.Add(hc);
-
-                return View("LoginSuccess", listPlayer);
             }
-
             else
             {
-                count++;
-                ViewBag.Error = $"Pogrešno korisničko ime ili lozinka {count}";
-                ModelState.AddModelError("", $"Pogrešno korisničko ime ili lozinka ");
-                if (count == 3)
-                {
-
-                    ViewBag.Error = $"Pogresno korisničko ime ili lozinka {count}";
-                    return View();
-                }
-
+                ModelState.AddModelError("", "Pogrešno korisničko ime i/ili lozinka");
                 return View();
 
             }
+
+
+
+
+            //if (korisnik)
+            //{
+            //    //FormsAuthentication.SetAuthCookie(player.KorisnickoIme, player.RememberMe);
+            //    //if (this.Url.IsLocalUrl(returnUrl))
+            //    //{
+            //    //    return Redirect(returnUrl);
+            //    //}
+            //    //else
+            //    //{
+            //    //    return RedirectToAction("GetPlayer", "Player");
+            //    //}
+
+
+            //    //Response.Cookies["KorisnickoIme"].Value = player.KorisnickoIme;
+            //    //Response.Cookies["KorisnickoIme"].Expires = DateTime.Now.AddMinutes(2);
+            //    //Response.Cookies["Lozinka"].Value = player.Lozinka;
+            //    //Response.Cookies["Lozinka"].Expires = DateTime.Now.AddMinutes(2);
+
+            //    //if (Request.Cookies["KorisnickoIme"] != null)
+            //    //{
+            //    //    string cvalue = Request.Cookies["KorisnickoIme"].Value.ToString();
+            //    //    ViewData["Value"] = cvalue;
+            //    //}
+
+            //    string cookieValue;
+            //    if (Request.Cookies["cookie"] != null)
+            //    {
+            //        cookieValue = Request.Cookies["cookie"].ToString();
+            //        ViewData["cookie"] = cookieValue;
+
+            //    }
+            //    else
+            //    {
+            //        Response.Cookies["cookie"].Value = "cookie value is empty";
+            //    }
+
+            //    //Session["korisnickoime"] = player.KorisnickoIme.ToString();
+            //    //Session["lozinka"] = player.Lozinka.ToString();
+
+            //    //Session["korisnik"] = player.KorisnickoIme + " je uspjesno prijavljen/a";
+
+
+
+
+            //    ////Cookie
+            //    //HttpCookie hc = new HttpCookie("userInfo", player.KorisnickoIme);
+            //    ////Expire
+            //    //hc.Expires = DateTime.Now.AddSeconds(15);
+            //    ////Save data u Cookie
+            //    //HttpContext.Response.SetCookie(hc);
+            //    ////Get data iz Cookie
+            //    //HttpCookie nc = Request.Cookies["userInfo"];
+            //    //return View("LoginSuccess");
+
+            //    //// Cookie
+            //    //HttpCookie hc = new HttpCookie("userInfo");
+            //    //hc["KorisnickoIme"] = player.KorisnickoIme;
+            //    //hc["Lozinka"] = player.Lozinka;
+
+            //    //hc.Expires = DateTime.Now.AddSeconds(10);
+            //    //Response.Cookies.Add(hc);
+
+            //    //Response.Redirect("Login");
+
+            //    //// Session
+
+            //    //FormsAuthenticationTicket fat = new FormsAuthenticationTicket(1, "Player", DateTime.Now, DateTime.Now.AddMinutes(2), false, JsonConvert.SerializeObject(korisnik));
+            //    //HttpCookie hc = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(fat));
+            //    //hc.Expires = DateTime.Now.AddMinutes(2);
+            //    //Response.Cookies.Add(hc);
+
+
+            //    Guid newGuid = Guid.NewGuid();
+
+
+            //    Session["korisnickoime"] = player.KorisnickoIme.ToString();
+            //    Session["lozinka"] = player.Lozinka.ToString();
+
+            //    Session["korisnik"] = player.KorisnickoIme + " je uspjesno prijavljen/a";
+            //    Session["korisnik"] = newGuid;
+
+
+            //    return View("LoginSuccess", listPlayer);
+            //}
+
+            //else
+            //{
+
+            //    ViewBag.Error = $"Pogrešno korisničko ime ili lozinka";
+            //    ModelState.AddModelError("", $"Pogrešno korisničko ime ili lozinka ");
+
+            //    return View();
+
+            //}
 
         }
 

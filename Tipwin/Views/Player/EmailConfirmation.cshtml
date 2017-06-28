@@ -2,15 +2,15 @@
 @{
     ViewBag.Title = "EmailConfirmation";
 }
-<h2>VERIFIKACIJA ADRESE ELEKTRONIČKE POŠTE</h2>
+<h4>VERIFIKACIJA ADRESE ELEKTRONIČKE POŠTE</h4>
 <p>
     Thank you for registering. Please check your email for a confirmation
     request with a link that will confirm your account. Once you click the
     link, your registration will be complete.
 </p>
-@*<p>
-        Please confirm your account by clicking this @Html.ActionLink("Submit", "Login", "Player")
-    </p>*@
+<p>
+    Please confirm your account by clicking this @Html.ActionLink("Submit", "Login", "Player")
+</p>
 @TempData["info"]
 @*@using (Html.BeginForm("EmailConfirmation", "Player", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
     {

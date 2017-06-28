@@ -7,11 +7,11 @@
 @if (Session["korisnickoime"] != null)
 {
     @ViewBag.Success
-        <h4>Hello @Session["korisnickoime"].ToString()</h4>
+    <h4>Hello @Session["korisnickoime"].ToString()</h4>
         <div class="alert alert-success">@Session["korisnik"]</div>
         <br />
         @Html.ActionLink("Logout", "Login", "Player")
 
 }
 <h2>Read</h2>
-Cookie Value = @ViewData["Value"]
+Cookie Value = @ViewData["cookie"]
