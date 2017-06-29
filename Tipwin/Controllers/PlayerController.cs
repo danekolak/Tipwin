@@ -1,12 +1,12 @@
 ﻿using CaptchaMvc.HtmlHelpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
 using Tipwin.Models;
 using Tipwin.Repository;
+using Tipwin.ViewModel;
 
 
 namespace Tipwin.Controllers
@@ -190,11 +190,11 @@ namespace Tipwin.Controllers
         [HttpPost]
         public ActionResult Index(string empty)
         {
-            if (this.IsCaptchaValid("Captcha is not valid"))
-            {
-                return View();
-            }
-            ViewBag.ErrorMessage = "Error: captcha is not valid.";
+            //if (this.IsCaptchaValid("Captcha is not valid"))
+            //{
+            //    return View();
+            //}
+            //ViewBag.ErrorMessage = "Error: captcha is not valid.";
             return View();
         }
 
@@ -243,34 +243,108 @@ namespace Tipwin.Controllers
         }
 
 
+        //[HttpPost]
+        //public ActionResult LoginValidate(AccountViewModel playervm)
+        //{
+        //    List<AccountViewModel> listPlayer = new List<AccountViewModel>();
+        //    listPlayer = db.Validate();
+
+        //    try
+        //    {
+
+
+        //        if (!String.IsNullOrEmpty(playervm.KorisnickoIme))
+        //        {
+        //            System.Web.Security.FormsAuthentication.SetAuthCookie(playervm.KorisnickoIme, false);
+        //            return View();
+        //        }
+
+        //        TempData["Message"] = "Login failed.User name or password supplied doesn't exist.";
+
+
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["Message"] = "Login failed.Error - " + ex.Message;
+        //    }
+        //    return View();
+        //}
+
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(Player player, string returnUrl)
+        public ActionResult Login(AccountViewModel playervm)
         {
 
-            List<Player> listPlayer = new List<Player>();
-            listPlayer = db.GetPlayers();
+            List<AccountViewModel> listPlayer = new List<AccountViewModel>();
+            listPlayer = db.Validate();
 
-            // var korisnik = listPlayer.Exists(s => s.KorisnickoIme.Equals(player.KorisnickoIme)) && listPlayer.Exists(l => l.Lozinka.Equals(player.Lozinka));
-
-
-            var korisnik = listPlayer.Single(u => u.KorisnickoIme == player.KorisnickoIme && u.Lozinka == player.Lozinka);
-
-
-            if (korisnik != null)
+            try
             {
-                Session["id"] = player.KorisnickoIme.ToString();
-                Session["korisnickoIme"] = player.Lozinka.ToString();
-                return RedirectToAction("LoginSuccess");
+
+                var korisnik = listPlayer.Exists(s => s.KorisnickoIme.Equals(playervm.KorisnickoIme)) || listPlayer.Exists(l => l.Lozinka.Equals(playervm.Lozinka));
+
+                if (!String.IsNullOrEmpty(playervm.KorisnickoIme) && korisnik)
+                {
+                    // System.Web.Security.FormsAuthentication.SetAuthCookie(playervm.KorisnickoIme, false);
+                    Session["korisnickoIme"] = playervm.KorisnickoIme.ToString();
+                    Session["lozinka"] = playervm.Lozinka.ToString();
+                    return RedirectToAction("LoginSuccess");
+
+                }
+
+                else if (!korisnik)
+                {
+                    if (Session["count"] == null)
+                    {
+                        Session["count"] = 1;
+                    }
+                    else
+                    {
+                        int count = (int)Session["count"];
+                        count++;
+                        Session["count"] = count;
+                        ;
+                    }
+                    ViewBag.Count = Session["count"];
+                    return View();
+                }
+
+                TempData["Message"] = "Login failed.User name or password supplied doesn't exist.";
+
+
 
             }
-            else
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", "Pogrešno korisničko ime i/ili lozinka");
-                return View();
-
+                TempData["Message"] = "Login failed.Error - " + ex.Message;
             }
+            return View();
+
+            //List<AccountViewModel> listPlayer = new List<AccountViewModel>();
+            //listPlayer = db.Validate();
+
+            //var korisnik = listPlayer.Exists(s => s.KorisnickoIme.Equals(player.KorisnickoIme)) && listPlayer.Exists(l => l.Lozinka.Equals(player.Lozinka));
+
+
+            //var korisnik = listPlayer.Single(u => u.KorisnickoIme == player.KorisnickoIme && u.Lozinka == player.Lozinka);
+
+
+            //if (korisnik)
+            //{
+            //    Session["id"] = player.KorisnickoIme.ToString();
+            //    Session["korisnickoIme"] = player.Lozinka.ToString();
+            //    return RedirectToAction("LoginSuccess");
+
+            //}
+            //else
+            //{
+            //    ModelState.AddModelError("", "Pogrešno korisničko ime i/ili lozinka");
+            //    return View();
+
+            //}
 
 
 
@@ -384,28 +458,28 @@ namespace Tipwin.Controllers
 
         public ActionResult LoginSuccess()
         {
-            Player player = new Player();
+            AccountViewModel playervm = new AccountViewModel();
 
-            if (Request.Cookies["cookie"] != null)
-            {
-                Response.Cookies["cookie"].Expires = DateTime.Now.AddMinutes(2);
-            }
+            //if (Request.Cookies["cookie"] != null)
+            //{
+            //    Response.Cookies["cookie"].Expires = DateTime.Now.AddMinutes(1);
+            //}
 
 
-            HttpCookie hc = Request.Cookies["userInfo"];
+            HttpCookie hc = Request.Cookies["cookie"];
             if (hc != null)
             {
-                player.KorisnickoIme = hc["KorisnickoIme"];
-                player.Lozinka = hc["Lozinka"];
+                playervm.KorisnickoIme = hc["cookie"];
+                playervm.Lozinka = hc["cookie"];
 
-
+                Response.Cookies["cookie"].Expires = DateTime.Now.AddMinutes(1);
                 Response.Cookies.Add(hc);
 
                 Response.Redirect("LoginSuccess");
             }
-            if (Session["korisnickoime"] != null)
+            if (Session["korisnickoIme"] != null)
             {
-                ViewBag.Message = "Login Success";
+                TempData["korisnickoime"] = "Login Success";
                 return View();
             }
             else
@@ -415,18 +489,17 @@ namespace Tipwin.Controllers
 
 
 
-
-            // var timeSpan = new TimeSpan(0, 0, 20);
-            //if (TimeSpan.FromSeconds(20) != null)
-            //{
-            //    return RedirectToAction("Create");
-            //}
-            //return View(player);
         }
 
         public ActionResult Logout()
         {
-            Session.Remove("korisnik");
+            if (Session != null)
+            {
+                Session.Remove("korisnickoIme");
+                Session.Remove("lozinka");
+
+            }
+
             return View();
         }
 
@@ -449,40 +522,5 @@ namespace Tipwin.Controllers
         }
 
 
-        //[HttpPost]
-        //public JsonResult IsValidDateOfBirth(string dob)
-        //{
-        //    var min = DateTime.Now.Date.AddYears(-18);
-        //    var max = DateTime.Now.Date.AddYears(-110);
-        //    var msg = string.Format("Please enter a value between {0:dd/MM/yyyy} and {1:dd/MM/yyyy}", max, min);
-        //    try
-        //    {
-        //        var date = DateTime.Parse(dob);
-        //        if (date > min || date < max)
-        //            return Json(msg);
-        //        else
-        //            return Json(true);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return Json(msg);
-        //    }
-        //}
-
-        //public class ValidateDateRange : ValidationAttribute
-        //{
-        //    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-        //    {
-        //        // your validation logic
-        //        if (value >= Convert.ToDateTime("01/10/2008") && value <= Convert.ToDateTime("01/12/2008"))
-        //        {
-        //            return ValidationResult.Success;
-        //        }
-        //        else
-        //        {
-        //            return new ValidationResult("Date is not in given range.");
-        //        }
-        //    }
-        //}
     }
 }

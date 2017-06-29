@@ -4,13 +4,13 @@
 
 }
 @Html.AntiForgeryToken()
-@if (Session["korisnickoime"] != null)
+@if (Session["korisnickoIme"] != null)
 {
     @ViewBag.Success
-    <h4>Hello @Session["korisnickoime"].ToString()</h4>
-        <div class="alert alert-success">@Session["korisnik"]</div>
-        <br />
-        @Html.ActionLink("Logout", "Login", "Player")
+    <h4>Hello @Session["korisnickoIme"].ToString()</h4>
+    <div class="alert alert-success">@TempData["korisnickoime"]</div>
+    <br />
+    @Html.ActionLink("Logout", "Login", "Player")
 
 }
 <h2>Read</h2>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using Tipwin.Hash;
 using Tipwin.Models;
+using Tipwin.ViewModel;
 
 namespace Tipwin.Repository
 {
@@ -14,6 +15,32 @@ namespace Tipwin.Repository
             + "DATABASE = 'player'; "
             + "UID = 'root'; "
             + "PASSWORD='root'; ";
+
+
+        //public List<AccountViewModel> GetValidatePlayers()
+        //{
+        //    connection = new MySqlConnection(conString);
+        //    string selQuery = "SELECT korisnicko_ime,lozinka FROM players;";
+        //    MySqlCommand cmd = new MySqlCommand(selQuery, connection);
+        //    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+        //    DataTable dt = new DataTable();
+        //    List<AccountViewModel> listPlayers = new List<AccountViewModel>();
+        //    da.Fill(dt);
+        //    foreach (DataRow dr in dt.Rows)
+        //    {
+        //        AccountViewModel p1 = new AccountViewModel()
+        //        {
+        //            KorisnickoIme = Convert.ToString(dr["korisnicko_ime"]),
+        //            Lozinka = Convert.ToString(dr["lozinka"])
+
+        //        };
+        //        listPlayers.Add(p1);
+        //    }
+        //    return listPlayers;
+        //}
+
+
+
         public List<Player> GetPlayers()
         {
 
@@ -102,6 +129,82 @@ namespace Tipwin.Repository
             connection.Close();
             if (i >= 1) return true; else return false;
         }
+
+        //public bool Validate(AccountViewModel playervm)
+        //{
+        //    connection = new MySqlConnection(conString);
+        //    string Query = "select korisnicko_ime from players WHERE korisnicko_ime=@korisnicko_ime AND lozinka =@lozinka";
+        //    MySqlCommand cmd = new MySqlCommand(Query, connection);
+        //    cmd.Parameters.AddWithValue("@korisnicko_ime", playervm.KorisnickoIme);
+        //    cmd.Parameters.AddWithValue("@lozinka", playervm.Lozinka);
+
+        //    connection.Open();
+        //    string userName = (string)cmd.ExecuteScalar();
+        //    connection.Close();
+        //    if (userName != null) return true; else return false;         
+        //}
+
+        public List<AccountViewModel> Validate()
+        {
+            connection = new MySqlConnection(conString);
+            string selQuery = "select korisnicko_ime,lozinka from players";
+            MySqlCommand cmd = new MySqlCommand(selQuery, connection);
+            MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            List<AccountViewModel> accountlistPlayers = new List<AccountViewModel>();
+            da.Fill(dt);
+            foreach (DataRow dr in dt.Rows)
+            {
+                AccountViewModel p1 = new AccountViewModel()
+                {
+                    KorisnickoIme = Convert.ToString(dr["korisnicko_ime"]),
+                    Lozinka = Convert.ToString(dr["lozinka"])
+
+                };
+                accountlistPlayers.Add(p1);
+            }
+            return accountlistPlayers;
+        }
+
+        //[HttpPost]
+        //public ActionResult Validate(User user)
+        //{
+        //    try
+        //    {
+        //        string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        //        using (var connection = new SqlConnection(cs))
+        //        {
+        //            string commandText = "SELECT Username FROM [User] WHERE Username=@Username AND Password = @Password";
+        //            using (var command = new SqlCommand(commandText, connection))
+        //            {
+        //                command.Parameters.AddWithValue("@Username", user.Username);
+        //                command.Parameters.AddWithValue("@Password", user.Password);
+        //                connection.Open();
+
+        //                string userName = (string)command.ExecuteScalar();
+
+        //                if (!String.IsNullOrEmpty(userName))
+        //                {
+        //                    System.Web.Security.FormsAuthentication.SetAuthCookie(user.Username, false);
+        //                    return RedirectToAction("Index", "Home");
+        //                }
+
+        //                TempData["Message"] = "Login failed.User name or password supplied doesn't exist.";
+
+        //                connection.Close();
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["Message"] = "Login failed.Error - " + ex.Message;
+        //    }
+        //    return RedirectToAction("Index");
+        //}
+
+
+
+
 
 
         //public bool FindEmail(string email)
