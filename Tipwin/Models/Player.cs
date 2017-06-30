@@ -97,20 +97,13 @@ namespace Tipwin.Models
         public int? BrojMobitela { get; set; }
 
 
-        //za korisnicko ime regular expression testing       
-        //[RegularExpression("^[a-zA-Z,0-9,-i_ ]*$")]
-        //[RegularExpression("^[a-z0-9A-Z!#$?{}|+,^.-+&=%_:;~@]{8,40}$")]
-        //+&=%_:;~@]{8,40}$")] ovaj dio javlja gresku   
-        //[RegularExpression("[^d{5}(-d{4})?$]")]
-        // [Remote("doesUserNameExist", "Player", HttpMethod = "POST", ErrorMessage = "User name already exists. Please enter a different user name.")]
-
         [Required(ErrorMessage = "Korisničko ime je zauzeto")]
         [DataType(DataType.Text)]
         [Display(Name = "Korisničko ime")]
         [MinLength(6), MaxLength(20)]
         [NotEqualTo("Lozinka", ErrorMessage = "Korisničko ime i lozinka ne mogu biti isti")]
         [Remote("UsernameExists", "Player", ErrorMessage = "User Name already in use")]
-        [RegularExpression(@"^([a-zA-Z0-9]{6,20})$", ErrorMessage = "Korisničko ime može sadržavat i brojeve")]
+        [RegularExpression(@"^([a-zA-Z0-9]{6,20})$", ErrorMessage = "Korisničko ime mora imat najmanje 6 slova i može sadržavat brojeve")]
         public string KorisnickoIme { get; set; }
 
         [Required(ErrorMessage = "Lozinka mora sadržavati velika i mala slova broj")]

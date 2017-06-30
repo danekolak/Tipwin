@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CaptchaMvc.HtmlHelpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -30,12 +31,6 @@ namespace Tipwin.Controllers
         }
 
 
-        //public JsonResult IsUserExists(string UserName)
-        //{
-        //    //check if any of the UserName matches the UserName specified in the Parameter using the ANY extension method.  
-        //    return Json(!listPlayers.Any(x => x.KorisnickoIme == UserName), JsonRequestBehavior.AllowGet);
-        //}
-
 
         public ActionResult Create()
         {
@@ -43,52 +38,6 @@ namespace Tipwin.Controllers
             return View();
         }
 
-        //[HttpPost]
-        //public ActionResult Create(Player player)
-        //{
-        //    db = new PlayerDb();
-        //    List<Player> listPlayer = new List<Player>();
-
-        //    var korisnik = (!listPlayer.Exists(s => s.KorisnickoIme.Contains(player.KorisnickoIme))
-        //   || !listPlayer.Exists(s => s.Lozinka.Contains(player.Lozinka)));
-
-        //    ViewBag.ErrorMessage = "Greška: captcha nije validna.";
-        //    if (ModelState.IsValid && this.IsCaptchaValid("Captcha nije validna"))
-        //    {
-        //        WebMail.Send(player.Email, "Login Link", "https://app1.4tipnet.com/hr/registracija");
-
-        //        db.InsertPlayer(player);
-        //        TempData["novikorisnik"] = player.KorisnickoIme + " je uspješno registriran/a. ";
-        //        return RedirectToAction("Login", listPlayer);
-        //    }
-
-        //    else if (player.KorisnickoIme == player.Lozinka)
-        //    {
-        //        ModelState.AddModelError("", "");
-        //        return View(player);
-        //    }
-        //    else if (player.Lozinka == player.Email)
-        //    {
-        //        ModelState.AddModelError("", "Lozinka mora biti različita od el. pošte");
-        //        return View(player);
-        //    }
-        //    else if (player.Email != player.EmailPonovo)
-        //    {
-        //        ModelState.AddModelError("", "Pogrešno unesena el. pošta");
-        //        return View(player);
-        //    }
-        //    else if (korisnik)
-        //    {
-        //        ModelState.AddModelError("", "Korisničko ime je zauzeto");
-        //        return View(player);
-        //    }
-
-        //    else
-        //    {
-        //        ModelState.AddModelError("", "Neuspješno uneseni podaci!Player nije dodan u bazu");
-        //        return View(player);
-        //    }
-        //}
 
         [HttpPost]
         public ActionResult Create(Player player)
@@ -97,7 +46,7 @@ namespace Tipwin.Controllers
             List<Player> listPlayer = new List<Player>();
 
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && this.IsCaptchaValid("Correct"))
             {
                 try
                 {
@@ -113,7 +62,7 @@ namespace Tipwin.Controllers
                     return RedirectToAction("EmailConfirmation", listPlayer);
 
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     ViewBag.ErrorMessage = "Greška: captcha nije validna.";
 
@@ -122,11 +71,11 @@ namespace Tipwin.Controllers
                 }
 
             }
-            //else if (!this.IsCaptchaValid("is not valid"))
-            //{
-            //    ModelState.AddModelError("", "Captcha not valid");
-            //    return View(player);
-            //}
+            else if (!this.IsCaptchaValid("is not valid"))
+            {
+                ModelState.AddModelError("", "Captcha not valid");
+                return View(player);
+            }
             else if (player.KorisnickoIme == player.Lozinka)
             {
                 ModelState.AddModelError("", "");
