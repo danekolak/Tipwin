@@ -1,9 +1,10 @@
-﻿using CaptchaMvc.HtmlHelpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
+using Tipwin.Hash;
 using Tipwin.Models;
 using Tipwin.Repository;
 using Tipwin.ViewModel;
@@ -14,6 +15,8 @@ namespace Tipwin.Controllers
 
     public class PlayerController : Controller
     {
+        // TODO: LOGIN previse se instancira
+
         PlayerDb db = new PlayerDb();
         List<Player> listPlayers = new List<Player>();
 
@@ -94,7 +97,7 @@ namespace Tipwin.Controllers
             List<Player> listPlayer = new List<Player>();
 
 
-            if (ModelState.IsValid && this.IsCaptchaValid("Correct"))
+            if (ModelState.IsValid)
             {
                 try
                 {
@@ -110,7 +113,7 @@ namespace Tipwin.Controllers
                     return RedirectToAction("EmailConfirmation", listPlayer);
 
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     ViewBag.ErrorMessage = "Greška: captcha nije validna.";
 
@@ -119,11 +122,11 @@ namespace Tipwin.Controllers
                 }
 
             }
-            else if (!this.IsCaptchaValid("is not valid"))
-            {
-                ModelState.AddModelError("", "Captcha not valid");
-                return View(player);
-            }
+            //else if (!this.IsCaptchaValid("is not valid"))
+            //{
+            //    ModelState.AddModelError("", "Captcha not valid");
+            //    return View(player);
+            //}
             else if (player.KorisnickoIme == player.Lozinka)
             {
                 ModelState.AddModelError("", "");
@@ -134,11 +137,11 @@ namespace Tipwin.Controllers
                 ModelState.AddModelError("", "Lozinka mora biti različita od el. pošte");
                 return View(player);
             }
-            else if (player.Email == "email")
-            {
-                ModelState.AddModelError("", "El. pošta je zauzeta");
-                return View(player);
-            }
+            //else if (player.Email == "email")
+            //{
+            //    ModelState.AddModelError("", "El. pošta je zauzeta");
+            //    return View(player);
+            //}
 
 
             else if (player.Email != player.EmailPonovo)
@@ -281,38 +284,39 @@ namespace Tipwin.Controllers
             List<AccountViewModel> listPlayer = new List<AccountViewModel>();
             listPlayer = db.Validate();
 
+
             try
             {
 
-                var korisnik = listPlayer.Exists(s => s.KorisnickoIme.Equals(playervm.KorisnickoIme)) || listPlayer.Exists(l => l.Lozinka.Equals(playervm.Lozinka));
-
-                if (!String.IsNullOrEmpty(playervm.KorisnickoIme) && korisnik)
+                if (listPlayer.Any(s => s.KorisnickoIme == playervm.KorisnickoIme && HashedPassword.Confirm(playervm.Lozinka, s.Lozinka, HashedPassword.SupportedHashAlgorithms.SHA256))
+                    && !MvcApplication.LoginCounter.ReturnIfLockedUsername(playervm.KorisnickoIme))
                 {
+
+
+                    //listPlayer.SingleOrDefault(s => s.KorisnickoIme == playervm.KorisnickoIme && s.Lozinka == playervm.Lozinka);
                     // System.Web.Security.FormsAuthentication.SetAuthCookie(playervm.KorisnickoIme, false);
                     Session["korisnickoIme"] = playervm.KorisnickoIme.ToString();
                     Session["lozinka"] = playervm.Lozinka.ToString();
+
+                    MvcApplication.LoginCounter.ClearLockedLoginsAfterSuccessfull(playervm.KorisnickoIme);
+
+
                     return RedirectToAction("LoginSuccess");
 
                 }
-
-                else if (!korisnik)
+                else
                 {
-                    if (Session["count"] == null)
+                    MvcApplication.LoginCounter.CheckLogin(playervm.KorisnickoIme);
+                    if (MvcApplication.LoginCounter.ReturnIfLockedUsername(playervm.KorisnickoIme))
                     {
-                        Session["count"] = 1;
+                        ViewBag.ErrorMessageLogin = MvcApplication.LoginCounter.LoginErrorMessage;
+                        return View();
                     }
-                    else
-                    {
-                        int count = (int)Session["count"];
-                        count++;
-                        Session["count"] = count;
-                        ;
-                    }
-                    ViewBag.Count = Session["count"];
-                    return View();
-                }
 
-                TempData["Message"] = "Login failed.User name or password supplied doesn't exist.";
+                }
+                return View();
+
+
 
 
 
@@ -323,28 +327,7 @@ namespace Tipwin.Controllers
             }
             return View();
 
-            //List<AccountViewModel> listPlayer = new List<AccountViewModel>();
-            //listPlayer = db.Validate();
 
-            //var korisnik = listPlayer.Exists(s => s.KorisnickoIme.Equals(player.KorisnickoIme)) && listPlayer.Exists(l => l.Lozinka.Equals(player.Lozinka));
-
-
-            //var korisnik = listPlayer.Single(u => u.KorisnickoIme == player.KorisnickoIme && u.Lozinka == player.Lozinka);
-
-
-            //if (korisnik)
-            //{
-            //    Session["id"] = player.KorisnickoIme.ToString();
-            //    Session["korisnickoIme"] = player.Lozinka.ToString();
-            //    return RedirectToAction("LoginSuccess");
-
-            //}
-            //else
-            //{
-            //    ModelState.AddModelError("", "Pogrešno korisničko ime i/ili lozinka");
-            //    return View();
-
-            //}
 
 
 
@@ -446,11 +429,6 @@ namespace Tipwin.Controllers
 
         }
 
-        public ActionResult LoginInvalid()
-        {
-            ViewBag.ErrorLogin = "Broj neuspjelih pokušaja logiranja ";
-            return View();
-        }
 
 
 
@@ -519,6 +497,27 @@ namespace Tipwin.Controllers
 
 
             return Content("Greška pri brisanju iz baze");
+        }
+
+        public JsonResult UsernameExists(string username)
+        {
+            PlayerDb db = new PlayerDb();
+
+
+            if (ModelState.IsValid)
+            {
+                List<AccountViewModel> lista = new List<AccountViewModel>();
+
+                lista = db.Validate();
+                foreach (var item in lista)
+                {
+                    if (String.Equals(username, Convert.ToString(item.KorisnickoIme), StringComparison.OrdinalIgnoreCase))
+                    {
+                        return Json(false);
+                    }
+                }
+            }
+            return Json(true, JsonRequestBehavior.AllowGet);
         }
 
 

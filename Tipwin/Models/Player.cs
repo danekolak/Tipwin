@@ -109,7 +109,7 @@ namespace Tipwin.Models
         [Display(Name = "Korisničko ime")]
         [MinLength(6), MaxLength(20)]
         [NotEqualTo("Lozinka", ErrorMessage = "Korisničko ime i lozinka ne mogu biti isti")]
-        [Remote("IsUserExists", "Player", ErrorMessage = "User Name already in use")]
+        [Remote("UsernameExists", "Player", ErrorMessage = "User Name already in use")]
         [RegularExpression(@"^([a-zA-Z0-9]{6,20})$", ErrorMessage = "Korisničko ime može sadržavat i brojeve")]
         public string KorisnickoIme { get; set; }
 

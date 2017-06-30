@@ -268,7 +268,7 @@ $.extend( $.validator, {
 		errorElement: "label",
 		focusCleanup: false,
 		focusInvalid: true,
-		errorContainer: $( [] ),
+       errorContainer: $( [] ),
 		errorLabelContainer: $( [] ),
 		onsubmit: true,
 		ignore: ":hidden",
@@ -289,6 +289,8 @@ $.extend( $.validator, {
 				this.element( element );
 			}
 		},
+
+
 		onkeyup: function( element, event ) {
 
 			// Avoid revalidate the field when pressing one of the following keys
@@ -340,7 +342,11 @@ $.extend( $.validator, {
 			} else {
 				$( element ).removeClass( errorClass ).addClass( validClass );
 			}
-		}
+		},
+
+
+
+
 	},
 
 	// http://jqueryvalidation.org/jQuery.validator.setDefaults/
@@ -1570,5 +1576,7 @@ if ( $.ajaxPrefilter ) {
 		return ajax.apply( this, arguments );
 	};
 }
+
+
 return $;
 }));

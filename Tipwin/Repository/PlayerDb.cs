@@ -84,12 +84,12 @@ namespace Tipwin.Repository
         public bool InsertPlayer(Player player)
         {
 
-            string saltHashReturned = HashedPassword.Sha256(player.Lozinka);
+            string saltHashReturned = HashedPassword.Encrypt(player.Lozinka, HashedPassword.SupportedHashAlgorithms.SHA256, null);
 
             connection = new MySqlConnection(conString);
             string insQuery = "INSERT INTO players VALUES (@id,@oslovljavanje,@ime,@prezime,@datum_rodjenja,@email,@email_ponovo,@ulica,@kucni_broj,@grad_mjesto,@postanski_broj,@drzava,@jezik_za_kontakt,@broj_telefona,@broj_mobitela,@korisnicko_ime,@lozinka,@lozinka_ponovo)";
             MySqlCommand cmd = new MySqlCommand(insQuery, connection);
-            cmd.Parameters.AddWithValue("@id", player.Id);
+            cmd.Parameters.AddWithValue("@id", null);
             cmd.Parameters.AddWithValue("@oslovljavanje", player.Oslovljavanje);
             cmd.Parameters.AddWithValue("@ime", player.Ime);
             cmd.Parameters.AddWithValue("@prezime", player.Prezime);
@@ -165,6 +165,14 @@ namespace Tipwin.Repository
             }
             return accountlistPlayers;
         }
+
+
+
+        public List<string> Getusername()
+        {
+            throw new NotImplementedException();
+        }
+
 
         //[HttpPost]
         //public ActionResult Validate(User user)
