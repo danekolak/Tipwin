@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
+using System.Text;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
@@ -16,7 +18,6 @@ namespace Tipwin.Controllers
 
     public class PlayerController : Controller
     {
-        // TODO: LOGIN previse se instancira
 
         PlayerDb db = new PlayerDb();
         List<Player> listPlayers = new List<Player>();
@@ -51,10 +52,8 @@ namespace Tipwin.Controllers
                 try
                 {
 
-
-                    WebMail.Send(player.Email, "Login Link", "http://localhost:60387/Player/Login");
-
                     db.InsertPlayer(player);
+                    WebMail.Send(player.Email, "Login Link", "http://localhost:60387/Player/Prijava");
                     TempData["novikorisnik"] = player.KorisnickoIme + " je uspješno registriran/a. ";
                     TempData["info"] = "Vaš korisnički račun je uspješno kreiran. Poslana je poruka za aktivaciju na vašu el. poštu";
 
@@ -86,12 +85,6 @@ namespace Tipwin.Controllers
                 ModelState.AddModelError("", "Lozinka mora biti različita od el. pošte");
                 return View(player);
             }
-            //else if (player.Email == "email")
-            //{
-            //    ModelState.AddModelError("", "El. pošta je zauzeta");
-            //    return View(player);
-            //}
-
 
             else if (player.Email != player.EmailPonovo)
             {
@@ -104,6 +97,57 @@ namespace Tipwin.Controllers
                 ModelState.AddModelError("", "Neuspješno uneseni podaci!Player nije dodan u bazu");
                 return View(player);
             }
+        }
+
+
+        public ActionResult SendPasswordResetEmail(string ToEmail, string UserName, string UniqueId)
+        {
+            PlayerDb db = new PlayerDb();
+            var user = db.Validate();
+            var username = (from i in user where i.KorisnickoIme == UserName select i.KorisnickoIme).FirstOrDefault();
+
+            //var token = WebSecurity.GeneratePasswordResetToken(UserName);
+            var resetLink = "<a href='" + Url.Action("ResetPassword", "Player", new { un = UserName }, "http") + "'>Reset Password</a>";
+
+            //send mail
+            string subject = "Password Reset Token";
+            string body = "<b>Please find the Password Reset Token.</b><br/>The below link will be valid till 30 mins<br/>" + resetLink; //edit it
+            try
+            {
+                SendPasswordResetEmail(username, subject, body);
+                TempData["Message"] = "Mail Sent.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = "Error occured while sending email." + ex.Message;
+            }
+
+
+            MailMessage mailMessage = new MailMessage("danijel147258@gmail.com", ToEmail);
+
+            StringBuilder sbEmailBody = new StringBuilder();
+            sbEmailBody.Append("Dear " + UserName + "<br/> <br/>");
+            sbEmailBody.Append("Please click on the following link to reset your password");
+            sbEmailBody.Append("<br/>");
+            sbEmailBody.Append("http://localhost:60387/Player/SendPasswordResetEmail?uid=" + UniqueId);
+            sbEmailBody.Append("<br/>");
+            sbEmailBody.Append("<b>Tipwin<b/>");
+
+            mailMessage.IsBodyHtml = true;
+
+            mailMessage.Body = sbEmailBody.ToString();
+            mailMessage.Subject = "Reset Your Password";
+            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
+
+            smtpClient.Credentials = new System.Net.NetworkCredential()
+            {
+                UserName = "danijel147258@gmail.com",
+                Password = "Domnet123-"
+            };
+            smtpClient.EnableSsl = true;
+            smtpClient.Send(mailMessage);
+
+            return View();
         }
 
 
@@ -127,13 +171,6 @@ namespace Tipwin.Controllers
         //    IEnumerable<SelectListItem> nameAdded = countryNames.GroupBy(x => x.Text).Select(x => x.FirstOrDefault()).ToList<SelectListItem>().OrderBy(x => x.Text);
         //    return nameAdded;
         //}
-
-
-
-
-
-
-
         public ActionResult Index()
         {
             return View();
@@ -185,7 +222,58 @@ namespace Tipwin.Controllers
         //        }
         //    }
         //}
+        public ActionResult ForgotPassword()
+        {
 
+            return View();
+        }
+
+        public ActionResult ForgotUserName()
+        {
+            Player player = new Player();
+            return View(player);
+
+        }
+
+        [HttpPost]
+        public ActionResult ForgotUserName(Player player)
+        {
+
+            List<UserNameViewModel> userlistPlayer = new List<UserNameViewModel>();
+            userlistPlayer = db.ForgotUser();
+
+            try
+            {
+                if ((userlistPlayer.Any(s => s.Email == player.Email && s.DatumRodjenja == player.DatumRodjenja)) && this.IsCaptchaValid("Correct"))
+                {
+                    Guid newGuid = new Guid();
+                    Random r = new Random(99);
+                    // newGuid = r.Next();
+
+                    WebMail.Send(player.Email, "List", $"http://localhost:60387/Player/GetPlayers={newGuid}");
+                    TempData["ConfirmMessage"] = $"U el. pošti potvrdite korisničko ime {player.KorisnickoIme}";
+                    return RedirectToAction("Login");
+
+                }
+                else if (!this.IsCaptchaValid("invalid captcha"))
+                {
+                    ModelState.AddModelError("", "Captcha is not valid");
+                    return View();
+                }
+                else
+                {
+                    ViewBag.DataError = "Nema podataka u bazi. Prijavite se.";
+                    return View();
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                TempData["send"] = "Not existing data " + ex.Message;
+                return View();
+            }
+        }
 
         [AllowAnonymous]
         public ActionResult Login()
@@ -193,35 +281,6 @@ namespace Tipwin.Controllers
             Player player = new Player();
             return View(player);
         }
-
-
-        //[HttpPost]
-        //public ActionResult LoginValidate(AccountViewModel playervm)
-        //{
-        //    List<AccountViewModel> listPlayer = new List<AccountViewModel>();
-        //    listPlayer = db.Validate();
-
-        //    try
-        //    {
-
-
-        //        if (!String.IsNullOrEmpty(playervm.KorisnickoIme))
-        //        {
-        //            System.Web.Security.FormsAuthentication.SetAuthCookie(playervm.KorisnickoIme, false);
-        //            return View();
-        //        }
-
-        //        TempData["Message"] = "Login failed.User name or password supplied doesn't exist.";
-
-
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        TempData["Message"] = "Login failed.Error - " + ex.Message;
-        //    }
-        //    return View();
-        //}
 
 
         [HttpPost]
@@ -265,117 +324,12 @@ namespace Tipwin.Controllers
                 }
                 return View();
 
-
-
-
-
             }
             catch (Exception ex)
             {
                 TempData["Message"] = "Login failed.Error - " + ex.Message;
             }
             return View();
-
-
-
-
-
-
-            //if (korisnik)
-            //{
-            //    //FormsAuthentication.SetAuthCookie(player.KorisnickoIme, player.RememberMe);
-            //    //if (this.Url.IsLocalUrl(returnUrl))
-            //    //{
-            //    //    return Redirect(returnUrl);
-            //    //}
-            //    //else
-            //    //{
-            //    //    return RedirectToAction("GetPlayer", "Player");
-            //    //}
-
-
-            //    //Response.Cookies["KorisnickoIme"].Value = player.KorisnickoIme;
-            //    //Response.Cookies["KorisnickoIme"].Expires = DateTime.Now.AddMinutes(2);
-            //    //Response.Cookies["Lozinka"].Value = player.Lozinka;
-            //    //Response.Cookies["Lozinka"].Expires = DateTime.Now.AddMinutes(2);
-
-            //    //if (Request.Cookies["KorisnickoIme"] != null)
-            //    //{
-            //    //    string cvalue = Request.Cookies["KorisnickoIme"].Value.ToString();
-            //    //    ViewData["Value"] = cvalue;
-            //    //}
-
-            //    string cookieValue;
-            //    if (Request.Cookies["cookie"] != null)
-            //    {
-            //        cookieValue = Request.Cookies["cookie"].ToString();
-            //        ViewData["cookie"] = cookieValue;
-
-            //    }
-            //    else
-            //    {
-            //        Response.Cookies["cookie"].Value = "cookie value is empty";
-            //    }
-
-            //    //Session["korisnickoime"] = player.KorisnickoIme.ToString();
-            //    //Session["lozinka"] = player.Lozinka.ToString();
-
-            //    //Session["korisnik"] = player.KorisnickoIme + " je uspjesno prijavljen/a";
-
-
-
-
-            //    ////Cookie
-            //    //HttpCookie hc = new HttpCookie("userInfo", player.KorisnickoIme);
-            //    ////Expire
-            //    //hc.Expires = DateTime.Now.AddSeconds(15);
-            //    ////Save data u Cookie
-            //    //HttpContext.Response.SetCookie(hc);
-            //    ////Get data iz Cookie
-            //    //HttpCookie nc = Request.Cookies["userInfo"];
-            //    //return View("LoginSuccess");
-
-            //    //// Cookie
-            //    //HttpCookie hc = new HttpCookie("userInfo");
-            //    //hc["KorisnickoIme"] = player.KorisnickoIme;
-            //    //hc["Lozinka"] = player.Lozinka;
-
-            //    //hc.Expires = DateTime.Now.AddSeconds(10);
-            //    //Response.Cookies.Add(hc);
-
-            //    //Response.Redirect("Login");
-
-            //    //// Session
-
-            //    //FormsAuthenticationTicket fat = new FormsAuthenticationTicket(1, "Player", DateTime.Now, DateTime.Now.AddMinutes(2), false, JsonConvert.SerializeObject(korisnik));
-            //    //HttpCookie hc = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(fat));
-            //    //hc.Expires = DateTime.Now.AddMinutes(2);
-            //    //Response.Cookies.Add(hc);
-
-
-            //    Guid newGuid = Guid.NewGuid();
-
-
-            //    Session["korisnickoime"] = player.KorisnickoIme.ToString();
-            //    Session["lozinka"] = player.Lozinka.ToString();
-
-            //    Session["korisnik"] = player.KorisnickoIme + " je uspjesno prijavljen/a";
-            //    Session["korisnik"] = newGuid;
-
-
-            //    return View("LoginSuccess", listPlayer);
-            //}
-
-            //else
-            //{
-
-            //    ViewBag.Error = $"Pogrešno korisničko ime ili lozinka";
-            //    ModelState.AddModelError("", $"Pogrešno korisničko ime ili lozinka ");
-
-            //    return View();
-
-            //}
-
         }
 
 

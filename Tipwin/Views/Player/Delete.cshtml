@@ -1,11 +1,8 @@
 ﻿@model Tipwin.Models.Player
-
 @{
     ViewBag.Title = "Delete";
 }
-
 <h2>Delete</h2>
-
 <h3>Are you sure you want to delete this?</h3>
 <div>
     <h4>Player</h4>
@@ -14,149 +11,113 @@
         <dt>
             @Html.DisplayNameFor(model => model.Oslovljavanje)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.Oslovljavanje)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.Ime)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.Ime)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.Prezime)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.Prezime)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.DatumRodjenja)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.DatumRodjenja)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.Email)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.Email)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.EmailPonovo)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.EmailPonovo)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.Ulica)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.Ulica)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.KucniBroj)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.KucniBroj)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.GradMjesto)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.GradMjesto)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.PostanskiBroj)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.PostanskiBroj)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.Drzava)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.Drzava)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.JezikZaKontakt)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.JezikZaKontakt)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.BrojTelefona)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.BrojTelefona)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.BrojMobitela)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.BrojMobitela)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.KorisnickoIme)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.KorisnickoIme)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.Lozinka)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.Lozinka)
         </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.LozinkaPonovo)
         </dt>
-
         <dd>
             @Html.DisplayFor(model => model.LozinkaPonovo)
         </dd>
+        @*<dt>
+                @Html.DisplayNameFor(model => model.PogresnaLozinka)
+            </dt>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.PogresnaLozinka)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.PogresnaLozinka)
-        </dd>
-
+            <dd>
+                @Html.DisplayFor(model => model.PogresnaLozinka)
+            </dd>*@
     </dl>
-
     @using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()

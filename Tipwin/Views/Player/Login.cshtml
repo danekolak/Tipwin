@@ -12,6 +12,7 @@
     <h4>@ViewBag.LoginCounter</h4>
     <h4>@ViewBag.ErrorMessageLogin</h4>
     <h4>@ViewBag.Attempts</h4>
+    <h4>@TempData["ConfirmMessage"]</h4>
 
     @TempData["korisnickoIme"]
 
@@ -44,7 +45,8 @@
     </div>
 }
 <div>
-    @Html.ActionLink("New Login", "Login", "Player", new { @class = "btn btn-sm" })
-    <br />
-    @Html.ActionLink("Back to List", "GetPlayer", "Player", new { @class = "btn btn-sm" })
+    @Html.ActionLink("Zaboravljeno korisničko ime", "ForgotUserName", new { @class = "btn btn-sm" })|
+    @Html.ActionLink("Zaboravljena lozinka", "ForgotPassword", new { @class = "btn btn-sm" })|
+    @Html.ActionLink("Nova prijava", "Login", "Player", new { @class = "btn btn-sm" })|
+    @Html.ActionLink("Natrag na listu", "GetPlayer", "Player", new { @class = "btn btn-sm" })
 </div>
