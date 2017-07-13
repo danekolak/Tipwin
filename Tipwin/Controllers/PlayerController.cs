@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
-using System.Text;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
@@ -31,6 +29,44 @@ namespace Tipwin.Controllers
             return View(listPlayers);
         }
 
+        public ActionResult Confirmed()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Confirmed(ActivationViewModel activationvm)
+        {
+            db = new PlayerDb();
+            List<ActivationViewModel> activationlistGetActivationEmail = new List<ActivationViewModel>();
+            activationlistGetActivationEmail = db.GetActivationEmail();
+
+            //var code = activationvm.ActivationCode;
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (activationvm.ActivationCode.Any() && activationlistGetActivationEmail.Any(s => s.ActivationCode == activationvm.ActivationCode))   //if(activationlistGetActivationEmail.Any(s => s.ActivationCode == activationvm.ActivationCode)) //projera ima li u bazi kood
+                    {
+                        TempData["odblokiran"] = "Vaš račun je odblokiran";
+                        return RedirectToAction("Login");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Pogrešan verifikacijski kod");
+                        return View();
+                    }
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", "Unesite kod za odblokiranje računa" + e.Message);
+                    return View();
+                }
+
+            }
+            return View();
+        }
+
 
 
         public ActionResult Create()
@@ -44,19 +80,22 @@ namespace Tipwin.Controllers
         public ActionResult Create(Player player)
         {
             db = new PlayerDb();
-            List<Player> listPlayer = new List<Player>();
 
+            ActivationViewModel activationvm = new ActivationViewModel();
+            List<Player> listPlayer = new List<Player>();
+            listPlayer = db.GetPlayers();
 
             if (ModelState.IsValid && this.IsCaptchaValid("Correct"))
             {
                 try
                 {
-
                     db.InsertPlayer(player);
-                    WebMail.Send(player.Email, "Login Link", "http://localhost:60387/Player/Prijava");
+                    var random = db.SendActivationEmail(activationvm);
+
+                    WebMail.Send(player.Email, $"Activation code:{random}", "http://localhost:60387/Player/Confirmed");
+
                     TempData["novikorisnik"] = player.KorisnickoIme + " je uspješno registriran/a. ";
                     TempData["info"] = "Vaš korisnički račun je uspješno kreiran. Poslana je poruka za aktivaciju na vašu el. poštu";
-
 
                     return RedirectToAction("EmailConfirmation", listPlayer);
 
@@ -70,6 +109,7 @@ namespace Tipwin.Controllers
                 }
 
             }
+
             else if (!this.IsCaptchaValid("is not valid"))
             {
                 ModelState.AddModelError("", "Captcha not valid");
@@ -99,56 +139,63 @@ namespace Tipwin.Controllers
             }
         }
 
+        //public ActionResult Provjera(Player player)
+        //{
+        //    db.ActivateMyAccount(player);
+        //    return View(player);
 
-        public ActionResult SendPasswordResetEmail(string ToEmail, string UserName, string UniqueId)
-        {
-            PlayerDb db = new PlayerDb();
-            var user = db.Validate();
-            var username = (from i in user where i.KorisnickoIme == UserName select i.KorisnickoIme).FirstOrDefault();
-
-            //var token = WebSecurity.GeneratePasswordResetToken(UserName);
-            var resetLink = "<a href='" + Url.Action("ResetPassword", "Player", new { un = UserName }, "http") + "'>Reset Password</a>";
-
-            //send mail
-            string subject = "Password Reset Token";
-            string body = "<b>Please find the Password Reset Token.</b><br/>The below link will be valid till 30 mins<br/>" + resetLink; //edit it
-            try
-            {
-                SendPasswordResetEmail(username, subject, body);
-                TempData["Message"] = "Mail Sent.";
-            }
-            catch (Exception ex)
-            {
-                TempData["Message"] = "Error occured while sending email." + ex.Message;
-            }
+        //}
 
 
-            MailMessage mailMessage = new MailMessage("danijel147258@gmail.com", ToEmail);
+        //public ActionResult SendPasswordResetEmail(string ToEmail, string UserName, string UniqueId)
+        //{
+        //    PlayerDb db = new PlayerDb();
+        //    var user = db.Validate();
+        //    var username = (from i in user where i.KorisnickoIme == UserName select i.KorisnickoIme).FirstOrDefault();
 
-            StringBuilder sbEmailBody = new StringBuilder();
-            sbEmailBody.Append("Dear " + UserName + "<br/> <br/>");
-            sbEmailBody.Append("Please click on the following link to reset your password");
-            sbEmailBody.Append("<br/>");
-            sbEmailBody.Append("http://localhost:60387/Player/SendPasswordResetEmail?uid=" + UniqueId);
-            sbEmailBody.Append("<br/>");
-            sbEmailBody.Append("<b>Tipwin<b/>");
+        //    //var token = WebSecurity.GeneratePasswordResetToken(UserName);
+        //    var resetLink = "<a href='" + Url.Action("ResetPassword", "Player", new { un = UserName }, "http") + "'>Reset Password</a>";
 
-            mailMessage.IsBodyHtml = true;
+        //    //send mail
+        //    string subject = "Password Reset Token";
+        //    string body = "<b>Please find the Password Reset Token.</b><br/>The below link will be valid till 30 mins<br/>" + resetLink; //edit it
+        //    try
+        //    {
+        //        SendPasswordResetEmail(username, subject, body);
+        //        TempData["Message"] = "Mail Sent.";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["Message"] = "Error occured while sending email." + ex.Message;
+        //    }
 
-            mailMessage.Body = sbEmailBody.ToString();
-            mailMessage.Subject = "Reset Your Password";
-            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
 
-            smtpClient.Credentials = new System.Net.NetworkCredential()
-            {
-                UserName = "danijel147258@gmail.com",
-                Password = "Domnet123-"
-            };
-            smtpClient.EnableSsl = true;
-            smtpClient.Send(mailMessage);
+        //    MailMessage mailMessage = new MailMessage("danijel147258@gmail.com", ToEmail);
 
-            return View();
-        }
+        //    StringBuilder sbEmailBody = new StringBuilder();
+        //    sbEmailBody.Append("Dear " + UserName + "<br/> <br/>");
+        //    sbEmailBody.Append("Please click on the following link to reset your password");
+        //    sbEmailBody.Append("<br/>");
+        //    sbEmailBody.Append("http://localhost:60387/Player/SendPasswordResetEmail?uid=" + UniqueId);
+        //    sbEmailBody.Append("<br/>");
+        //    sbEmailBody.Append("<b>Tipwin<b/>");
+
+        //    mailMessage.IsBodyHtml = true;
+
+        //    mailMessage.Body = sbEmailBody.ToString();
+        //    mailMessage.Subject = "Reset Your Password";
+        //    SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
+
+        //    smtpClient.Credentials = new System.Net.NetworkCredential()
+        //    {
+        //        UserName = "danijel147258@gmail.com",
+        //        Password = "Domnet123-"
+        //    };
+        //    smtpClient.EnableSsl = true;
+        //    smtpClient.Send(mailMessage);
+
+        //    return View();
+        //}
 
 
         //public static IEnumerable<SelectListItem> GetCountries()
@@ -173,6 +220,7 @@ namespace Tipwin.Controllers
         //}
         public ActionResult Index()
         {
+
             return View();
         }
 
@@ -238,21 +286,27 @@ namespace Tipwin.Controllers
         [HttpPost]
         public ActionResult ForgotUserName(Player player)
         {
-
+            //PlayerDb activateDb = new PlayerDb();
+            //activateDb.SendActivationEmail();
             List<UserNameViewModel> userlistPlayer = new List<UserNameViewModel>();
+            ActivationViewModel activationsPlayer = new ActivationViewModel();
+
+
             userlistPlayer = db.ForgotUser();
+            // activationsPlayer = db.SendActivationEmail();
+
 
             try
             {
                 if ((userlistPlayer.Any(s => s.Email == player.Email && s.DatumRodjenja == player.DatumRodjenja)) && this.IsCaptchaValid("Correct"))
                 {
-                    Guid newGuid = new Guid();
-                    Random r = new Random(99);
-                    // newGuid = r.Next();
+                    Guid newGuid = Guid.NewGuid();
 
-                    WebMail.Send(player.Email, "List", $"http://localhost:60387/Player/GetPlayers={newGuid}");
-                    TempData["ConfirmMessage"] = $"U el. pošti potvrdite korisničko ime {player.KorisnickoIme}";
-                    return RedirectToAction("Login");
+
+                    WebMail.Send(player.Email, $"Activation code: {activationsPlayer.ActivationCode}", $"http://localhost:60387/Player/Confirmed?{newGuid}");
+                    //TempData["ConfirmMessage"] = "U el. pošti potvrdite korisničko ime s kodom ";
+
+                    return RedirectToAction("Confirmed");
 
                 }
                 else if (!this.IsCaptchaValid("invalid captcha"))
@@ -275,6 +329,7 @@ namespace Tipwin.Controllers
             }
         }
 
+
         [AllowAnonymous]
         public ActionResult Login()
         {
@@ -292,14 +347,17 @@ namespace Tipwin.Controllers
             List<AccountViewModel> listPlayer = new List<AccountViewModel>();
             listPlayer = db.Validate();
 
+            List<ActivationViewModel> activationListViewModel = new List<ActivationViewModel>();
+            activationListViewModel = db.GetActivationEmail();
+
+            var activateAccount = activationListViewModel.Any();
 
             try
             {
 
-                if (listPlayer.Any(s => s.KorisnickoIme == playervm.KorisnickoIme && HashedPassword.Confirm(playervm.Lozinka, s.Lozinka, HashedPassword.SupportedHashAlgorithms.SHA256))
-                    && !MvcApplication.LoginCounter.ReturnIfLockedUsername(playervm.KorisnickoIme))
+                if (activateAccount && listPlayer.Any(s => s.KorisnickoIme == playervm.KorisnickoIme && HashedPassword.Confirm(playervm.Lozinka, s.Lozinka, HashedPassword.SupportedHashAlgorithms.SHA256))
+                && !MvcApplication.LoginCounter.ReturnIfLockedUsername(playervm.KorisnickoIme))
                 {
-
 
                     //listPlayer.SingleOrDefault(s => s.KorisnickoIme == playervm.KorisnickoIme && s.Lozinka == playervm.Lozinka);
                     // System.Web.Security.FormsAuthentication.SetAuthCookie(playervm.KorisnickoIme, false);
@@ -307,13 +365,12 @@ namespace Tipwin.Controllers
                     Session["lozinka"] = playervm.Lozinka.ToString();
 
                     MvcApplication.LoginCounter.ClearLockedLoginsAfterSuccessfull(playervm.KorisnickoIme);
-
-
                     return RedirectToAction("LoginSuccess");
 
                 }
                 else
                 {
+
                     MvcApplication.LoginCounter.CheckLogin(playervm.KorisnickoIme);
                     if (MvcApplication.LoginCounter.ReturnIfLockedUsername(playervm.KorisnickoIme))
                     {
@@ -333,10 +390,6 @@ namespace Tipwin.Controllers
         }
 
 
-
-
-
-
         public ActionResult LoginSuccess()
         {
             AccountViewModel playervm = new AccountViewModel();
@@ -345,7 +398,6 @@ namespace Tipwin.Controllers
             //{
             //    Response.Cookies["cookie"].Expires = DateTime.Now.AddMinutes(1);
             //}
-
 
             HttpCookie hc = Request.Cookies["cookie"];
             if (hc != null)

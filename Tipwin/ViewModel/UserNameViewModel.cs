@@ -21,5 +21,6 @@ namespace Tipwin.ViewModel
         [ValidateAge(18, 90)]
         [DataType(DataType.Date), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime DatumRodjenja { get; set; }
+
     }
 }

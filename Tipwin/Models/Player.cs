@@ -18,7 +18,7 @@ namespace Tipwin.Models
         [DataType(DataType.Text)]
         [NotEqualTo("KorisnickoIme", ErrorMessage = "Mora biti različito od korisničkog imena")]
         [RegularExpression("([a-zA-Z]{3,30})+", ErrorMessage = "Upišite ime")]
-        [Required(ErrorMessage = "Molimo unesite svoje puno ime.Uplate ili ispalte bit će uspješno provedene samo u slučaju podudarnosti unesenog imena i prezimena ")]
+        [Required(ErrorMessage = "Molimo unesite svoje puno ime.Uplate ili isplate bit će uspješno provedene samo u slučaju podudarnosti unesenog imena i prezimena ")]
         public string Ime { get; set; }
 
         [Required(ErrorMessage = "Molimo unesite prezime...")]
@@ -54,7 +54,6 @@ namespace Tipwin.Models
 
         [Required(ErrorMessage = "Molimo potvrdite el poštu....")]
         [System.ComponentModel.DataAnnotations.Compare("Email", ErrorMessage = "El pošta adresa nije ista")]
-        // [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Please enter a valid e-mail adress")]
         [RegularExpression(@"^([\w-\.]+)@((\[[0-9]{1,3]\.)|(([\w-]+\.)+))([a-zA-Z{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Unesite ispravnu el. poštu")]
         [Display(Name = "Ponovite el. poštu")]
         [DataType(DataType.EmailAddress)]
@@ -124,7 +123,11 @@ namespace Tipwin.Models
         [System.ComponentModel.DataAnnotations.Compare("Lozinka", ErrorMessage = "Lozinka nije ista")]
         [Display(Name = "Ponovite lozinku")]
         public string LozinkaPonovo { get; set; }
-        public bool RememberMe { get; set; }
+
+        public bool Provjeren { get; set; }
+        // public bool RememberMe { get; set; }
+
+        // public bool IsConfirmed { get; set; }
 
 
         //[Display(Name = "Pogrešna lozinka")]

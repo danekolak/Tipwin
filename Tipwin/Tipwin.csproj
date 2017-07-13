@@ -328,6 +328,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\PlayerDb.cs" />
     <Compile Include="ViewModel\AccountViewModel.cs" />
+    <Compile Include="ViewModel\ActivationViewModel.cs" />
     <Compile Include="ViewModel\UserNameViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -348,6 +349,8 @@
     <Content Include="Views\Player\Create.cshtml" />
     <Content Include="Views\Player\SendPasswordResetEmail.cshtml" />
     <Content Include="Views\Player\ForgotUserName.cshtml" />
+    <Content Include="Views\Player\Confirmed.cshtml" />
+    <Content Include="Views\Player\Provjera.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
