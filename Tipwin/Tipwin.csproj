@@ -342,6 +342,7 @@
     <Compile Include="Repository\PlayerDb.cs" />
     <Compile Include="ViewModel\AccountViewModel.cs" />
     <Compile Include="ViewModel\ActivationViewModel.cs" />
+    <Compile Include="ViewModel\UserAccountPartialViewModel.cs" />
     <Compile Include="ViewModel\UserNamePasswordViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -370,6 +371,7 @@
     <Content Include="Views\Player\UploadFiles.cshtml" />
     <Content Include="Views\Player\Success.cshtml" />
     <Content Include="Views\Player\NewCode.cshtml" />
+    <Content Include="Views\Player\EditUserAccount.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

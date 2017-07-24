@@ -66,7 +66,6 @@
 
 
         <tr>
-
             <td>
                 @Html.DisplayFor(modelItem => item.Oslovljavanje)
             </td>
@@ -119,7 +118,7 @@
                 @Html.DisplayFor(modelItem => item.LozinkaPonovo)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Edit", "EditUserAccount", new { id = item.Id }) |
                 @Html.ActionLink("Details", "Details", new { id = item.Id }) |
                 @Html.ActionLink("Delete", "Delete", new { id = item.Id })
             </td>

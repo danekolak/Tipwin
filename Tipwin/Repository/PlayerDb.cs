@@ -82,7 +82,113 @@ namespace Tipwin.Repository
             connection.Close();
             if (i >= 1) return true; else return false;
         }
+        public UserNameData SelectByIdUserNameData(int id)
+        {
+            UserNameData p1 = null;
+            connection = new MySqlConnection(conString);
+            string selQuery = "SELECT id,korisnicko_ime,oslovljavanje,ime,prezime,datum_rodjenja, kucni_broj,grad_mjesto,postanski_broj,drzava,jezik_za_kontakt,broj_telefona,broj_mobitela FROM players WHERE id=@id";
+            MySqlCommand cmd = new MySqlCommand(selQuery, connection);
+            cmd.Parameters.AddWithValue("@id", id);
+            MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
 
+            if (dt.Rows.Count != 0)
+            {
+                DataRow dr = dt.Rows[0];
+                p1 = new UserNameData()
+                {
+                    Id = Convert.ToInt32(dr["id"]),
+                    KorisnickoIme = Convert.ToString(dr["korisnicko_ime"]),
+                    Oslovljavanje = Convert.ToString(dr["oslovljavanje"]),
+                    Ime = Convert.ToString(dr["ime"]),
+                    Prezime = Convert.ToString(dr["prezime"]),
+                    DatumRodjenja = Convert.ToDateTime(dr["datum_rodjenja"]),
+                    KucniBroj = Convert.ToString(dr["kucni_broj"]),
+                    GradMjesto = Convert.ToString(dr["grad_mjesto"]),
+                    PostanskiBroj = Convert.ToInt32(dr["postanski_broj"]),
+                    Drzava = Convert.ToString(dr["drzava"]),
+                    JezikZaKontakt = Convert.ToString(dr["jezik_za_kontakt"]),
+                    BrojTelefona = Convert.ToInt32(dr["broj_telefona"] as int? ?? null),
+                    BrojMobitela = Convert.ToInt32(dr["broj_mobitela"] as int? ?? null)
+
+                };
+                return p1;
+            }
+            return null;
+        }
+        //public UserNameData SelectByIdAddressData(int id)
+        //{
+        //    UserNameData p1 = null;
+        //    connection = new MySqlConnection(conString);
+        //    string selQuery = "SELECT kucni_broj,grad_mjesto,postanski_broj,drzava FROM players WHERE id=@id";
+        //    MySqlCommand cmd = new MySqlCommand(selQuery, connection);
+        //    cmd.Parameters.AddWithValue("@id", id);
+        //    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+        //    DataTable dt = new DataTable();
+        //    da.Fill(dt);
+
+        //    if (dt.Rows.Count != 0)
+        //    {
+        //        DataRow dr = dt.Rows[0];
+        //        p1 = new UserNameData()
+        //        {
+        //            KucniBroj = Convert.ToString(dr["kucni_broj"]),
+        //            GradMjesto = Convert.ToString(dr["grad_mjesto"]),
+        //            PostanskiBroj = Convert.ToInt32(dr["postanski_broj"]),
+        //            Drzava = Convert.ToString(dr["drzava"])
+        //        };
+        //        return p1;
+        //    }
+        //    return null;
+        //}
+        //public UserNameData SelectByIdContactData(int id)
+        //{
+        //    UserNameData p1 = null;
+        //    connection = new MySqlConnection(conString);
+        //    string selQuery = "SELECT jezik_za_kontakt,broj_telefona,broj_mobitela FROM players WHERE id=@id";
+        //    MySqlCommand cmd = new MySqlCommand(selQuery, connection);
+        //    cmd.Parameters.AddWithValue("@id", id);
+        //    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+        //    DataTable dt = new DataTable();
+        //    da.Fill(dt);
+
+        //    if (dt.Rows.Count != 0)
+        //    {
+        //        DataRow dr = dt.Rows[0];
+        //        p1 = new UserNameData()
+        //        {
+        //            JezikZaKontakt = Convert.ToString(dr["jezik_za_kontakt"]),
+        //            BrojTelefona = Convert.ToInt32(dr["broj_telefona"] as int? ?? null),
+        //            BrojMobitela = Convert.ToInt32(dr["broj_mobitela"] as int? ?? null)
+
+        //        };
+        //        return p1;
+        //    }
+        //    return null;
+        //}
+        public bool UpdatePlayer(UserNameData player)
+        {
+            connection = new MySqlConnection(conString);
+            string updString = "update players set id=@id,ulica=@ulica,kucni_broj=@kucni_broj,grad_mjesto=@grad_mjesto,postanski_broj=@postanski_broj,drzava=@drzava,jezik_za_kontakt=@jezik_za_kontakt,broj_telefona=@broj_telefona,broj_mobitela=@broj_mobitela WHERE id=@id";
+
+            MySqlCommand cmd = new MySqlCommand(updString, connection);
+            cmd.Parameters.AddWithValue("@id", player.Id);
+            cmd.Parameters.AddWithValue("@ulica", player.Ulica);
+            cmd.Parameters.AddWithValue("@kucni_broj", player.KucniBroj);
+            cmd.Parameters.AddWithValue("@grad_mjesto", player.GradMjesto);
+            cmd.Parameters.AddWithValue("@postanski_broj", player.PostanskiBroj);
+            cmd.Parameters.AddWithValue("@drzava", player.Drzava);
+            cmd.Parameters.AddWithValue("@jezik_za_kontakt", player.JezikZaKontakt);
+            cmd.Parameters.AddWithValue("@broj_telefona", player.BrojTelefona);
+            cmd.Parameters.AddWithValue("@broj_mobitela", player.BrojMobitela);
+
+
+            connection.Open();
+            int i = cmd.ExecuteNonQuery();
+            connection.Close();
+            if (i >= 1) return true; else return false;
+        }
 
         public string FetchUserId(string email)
         {

@@ -99,12 +99,6 @@ namespace Tipwin.Controllers
             WebMail.Send(avm.Email, $"Activation code: {random}", "http://localhost:60387/Player/Confirmed");
 
             db.NewActivationCode(avm.Id, avm.PlayersId);
-            //TempData["odblokiran"] = "Vaš račun je verificiran";
-            // trenutniPlayerEmail = p.Email;
-            //TempData["trenutni"] = trenutniPlayerEmail;
-
-
-
             return RedirectToAction("Confirmed");
         }
         public ActionResult Create()
@@ -496,5 +490,31 @@ namespace Tipwin.Controllers
             }
             return View();
         }
+
+
+        public ActionResult EditUserAccount(int id)
+        {
+            UserNameData p = new UserNameData();
+            p = db.SelectByIdUserNameData(id);
+            return View(p);              //dohvatimo podatke
+        }
+        [HttpPost]
+        public ActionResult EditUserAccount(int id, UserNameData player)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    db.UpdatePlayer(player);
+                    return View();
+                }
+                catch
+                {
+
+                }
+            }
+            return RedirectToAction("GetPlayer");
+        }
+
     }
 }
