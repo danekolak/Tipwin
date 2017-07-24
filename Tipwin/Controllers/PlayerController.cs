@@ -506,14 +506,14 @@ namespace Tipwin.Controllers
                 try
                 {
                     db.UpdatePlayer(player);
-                    return View();
+                    return RedirectToAction("GetPlayer");
                 }
-                catch
+                catch (Exception e)
                 {
-
+                    ModelState.AddModelError("", $"{e.Message}");
                 }
             }
-            return RedirectToAction("GetPlayer");
+            return View();
         }
 
     }

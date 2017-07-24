@@ -86,7 +86,7 @@ namespace Tipwin.Repository
         {
             UserNameData p1 = null;
             connection = new MySqlConnection(conString);
-            string selQuery = "SELECT id,korisnicko_ime,oslovljavanje,ime,prezime,datum_rodjenja, kucni_broj,grad_mjesto,postanski_broj,drzava,jezik_za_kontakt,broj_telefona,broj_mobitela FROM players WHERE id=@id";
+            string selQuery = "SELECT id,korisnicko_ime,oslovljavanje,ime,prezime,datum_rodjenja,ulica,kucni_broj,grad_mjesto,postanski_broj,drzava,jezik_za_kontakt,broj_telefona,broj_mobitela FROM players WHERE id=@id";
             MySqlCommand cmd = new MySqlCommand(selQuery, connection);
             cmd.Parameters.AddWithValue("@id", id);
             MySqlDataAdapter da = new MySqlDataAdapter(cmd);
@@ -104,6 +104,7 @@ namespace Tipwin.Repository
                     Ime = Convert.ToString(dr["ime"]),
                     Prezime = Convert.ToString(dr["prezime"]),
                     DatumRodjenja = Convert.ToDateTime(dr["datum_rodjenja"]),
+                    Ulica = Convert.ToString(dr["ulica"]),
                     KucniBroj = Convert.ToString(dr["kucni_broj"]),
                     GradMjesto = Convert.ToString(dr["grad_mjesto"]),
                     PostanskiBroj = Convert.ToInt32(dr["postanski_broj"]),
