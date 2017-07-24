@@ -148,6 +148,19 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Datepicker\date.js" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\Images\115byte.jpg" />
+    <Content Include="Content\Images\2.4MB.jpg" />
+    <Content Include="Content\Images\3.5mb.jpg" />
+    <Content Include="Content\Images\3.62mb.jpg" />
+    <Content Include="Content\Images\4.4MB.jpg" />
+    <Content Include="Content\Images\5mb.jpg" />
+    <Content Include="Content\Images\download.jpg" />
+    <Content Include="Content\Images\image.jpg" />
+    <Content Include="Content\Images\large13mb.jpg" />
+    <Content Include="Content\Images\large2_11mb.jpg" />
+    <Content Include="Content\Images\largepicture1.jpg" />
+    <Content Include="Content\Images\MMSposter-large3_62mb.jpg" />
+    <Content Include="Content\Images\pleiades_large2.38mb.jpg" />
     <Content Include="Content\PasswordStrength\password.css" />
     <Content Include="Content\PasswordStrength\password.js" />
     <Content Include="Content\Site.css" />
@@ -329,7 +342,7 @@
     <Compile Include="Repository\PlayerDb.cs" />
     <Compile Include="ViewModel\AccountViewModel.cs" />
     <Compile Include="ViewModel\ActivationViewModel.cs" />
-    <Compile Include="ViewModel\UserNameViewModel.cs" />
+    <Compile Include="ViewModel\UserNamePasswordViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
@@ -351,6 +364,12 @@
     <Content Include="Views\Player\ForgotUserName.cshtml" />
     <Content Include="Views\Player\Confirmed.cshtml" />
     <Content Include="Views\Player\Provjera.cshtml" />
+    <Content Include="Views\Player\ForgotPassword.cshtml" />
+    <Content Include="Views\Player\AccountSuccess.cshtml" />
+    <Content Include="Views\Player\ChangePassword.cshtml" />
+    <Content Include="Views\Player\UploadFiles.cshtml" />
+    <Content Include="Views\Player\Success.cshtml" />
+    <Content Include="Views\Player\NewCode.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

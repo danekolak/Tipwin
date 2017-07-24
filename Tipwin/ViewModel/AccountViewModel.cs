@@ -6,10 +6,6 @@ namespace Tipwin.ViewModel
 {
     public class AccountViewModel
     {
-        // public Player playervm { get; set; }
-
-
-
         [Required(ErrorMessage = "Korisničko ime je zauzeto")]
         [DataType(DataType.Text)]
         [Display(Name = "Korisničko ime")]

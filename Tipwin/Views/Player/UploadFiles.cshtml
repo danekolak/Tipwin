@@ -1,0 +1,26 @@
+﻿
+@{
+    ViewBag.Title = "UploadFiles";
+}
+<h2>Upload Files</h2>
+<hr />
+@using (Html.BeginForm("Process", "Player", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @ViewBag.SendErrorMessage
+    @ViewBag.Error
+    @ViewBag.Empty
+    <table cellpadding="2" cellspacing="2">
+        <tr>
+            <td>Photo</td>
+            <td>
+                <input type="file" name="photo" />
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <input type="submit" name="Upload" value="Upload File" />
+            </td>
+        </tr>
+    </table>
+}

@@ -27,35 +27,24 @@ namespace Tipwin.Models
         [RegularExpression("([a-zA-Z]{3,30})+", ErrorMessage = "Upišite prezime")]
         public string Prezime { get; set; }
 
-
-
-        // [Range(typeof(DateTime), "01/01/1950", "01/01/1999", ErrorMessage = "Not Valid")]
-        // [DateRange("01/01/1999", ErrorMessage = "Datum nije validan")]
-        // [CurrentDateAttribute] 
-        //[DisplayFormat(DataFormatString = "{0:d}", ApplyFormatInEditMode = true)]
-        //[Range(18, 65, ErrorMessage = "Sorry, you must be between 18 and 65 to register.")]
-        // [RegularExpression(@"\d{1,3}", ErrorMessage = "Please enter a valid age.")]
-        //[DateRange("01/01/2000", "01/01/2010", ErrorMessage = "between")]
-        //[UIHint("LimitedDate")]
         [Required(ErrorMessage = "Molimo unesite datum....")]
         [Display(Name = "Datum rođenja")]
         [ValidateAge(18, 90)]
         [DataType(DataType.Date), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime DatumRodjenja { get; set; }
 
-
-        [Required(ErrorMessage = "Molimo unesite el. poštu...")]
+        [Required(ErrorMessage = "Molimo unesite email adresu...")]
         [DataType(DataType.EmailAddress)]
         [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Please enter a valid e-mail adress")]
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
         [NotEqualTo("Lozinka", ErrorMessage = "Mora biti različito od lozinke")]
-        [Display(Name = "El.pošta")]
+        [Display(Name = "Email adresa")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Molimo potvrdite el poštu....")]
         [System.ComponentModel.DataAnnotations.Compare("Email", ErrorMessage = "El pošta adresa nije ista")]
         [RegularExpression(@"^([\w-\.]+)@((\[[0-9]{1,3]\.)|(([\w-]+\.)+))([a-zA-Z{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Unesite ispravnu el. poštu")]
-        [Display(Name = "Ponovite el. poštu")]
+        [Display(Name = "Ponovite email adresu")]
         [DataType(DataType.EmailAddress)]
         public string EmailPonovo { get; set; }
 
@@ -124,28 +113,7 @@ namespace Tipwin.Models
         [Display(Name = "Ponovite lozinku")]
         public string LozinkaPonovo { get; set; }
 
-        public bool Provjeren { get; set; }
-        // public bool RememberMe { get; set; }
-
-        // public bool IsConfirmed { get; set; }
 
 
-        //[Display(Name = "Pogrešna lozinka")]
-        //public string PogresnaLozinka { get; set; }
-
-
-
-
-        //public string ReturnUrl { get; set; }
-
-        //public string Provider { get; set; }
-
-        //public string Code { get; set; }
-
-        //public DateTime EmailConfirmed { get; set; }
-
-        //public string EmailLinkDate { get; set; }
-
-        //public DateTime LastLoginDate { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using CaptchaMvc.HtmlHelpers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Helpers;
@@ -16,6 +17,7 @@ namespace Tipwin.Controllers
 
     public class PlayerController : Controller
     {
+        static string trenutniPlayerEmail = "";
 
         PlayerDb db = new PlayerDb();
         List<Player> listPlayers = new List<Player>();
@@ -38,17 +40,32 @@ namespace Tipwin.Controllers
         public ActionResult Confirmed(ActivationViewModel activationvm)
         {
             db = new PlayerDb();
-            List<ActivationViewModel> activationlistGetActivationEmail = new List<ActivationViewModel>();
-            activationlistGetActivationEmail = db.GetActivationEmail();
-
-            //var code = activationvm.ActivationCode;
+            List<Player> listPlayers = db.GetPlayers();
+            List<ActivationViewModel> activationlistGetActivationEmail = db.GetActivationEmail();
             if (ModelState.IsValid)
             {
                 try
                 {
-                    if (activationvm.ActivationCode.Any() && activationlistGetActivationEmail.Any(s => s.ActivationCode == activationvm.ActivationCode))   //if(activationlistGetActivationEmail.Any(s => s.ActivationCode == activationvm.ActivationCode)) //projera ima li u bazi kood
+                    var verificiran = activationlistGetActivationEmail.Any(s => s.Provjeren == activationvm.Provjeren);
+
+                    var activVM = activationlistGetActivationEmail.SingleOrDefault(d => d.ActivationCode == activationvm.ActivationCode);
+                    var p = listPlayers.SingleOrDefault(e => e.Email == activVM.Email);
+                    if (activationvm.ActivationCode.Any() && activVM != null)
                     {
-                        TempData["odblokiran"] = "Vaš račun je odblokiran";
+                        db.SavePlayerActivationId(activVM.Id, p.Id, verificiran);
+                        TempData["odblokiran"] = "Vaš račun je verificiran";
+                        trenutniPlayerEmail = p.Email;
+                        TempData["trenutni"] = trenutniPlayerEmail;
+
+                        if (activVM.PlayersId == 0)
+                        {
+                            return RedirectToAction("Login");
+                        }
+                        else
+                            return RedirectToAction("ChangePassword");
+                    }
+                    else if (activationvm.ActivationCode.Any() && activVM == null)
+                    {
                         return RedirectToAction("Login");
                     }
                     else
@@ -62,25 +79,42 @@ namespace Tipwin.Controllers
                     ModelState.AddModelError("", "Unesite kod za odblokiranje računa" + e.Message);
                     return View();
                 }
-
             }
             return View();
         }
 
-
-
-        public ActionResult Create()
+        public ActionResult NewCode()
         {
-
             return View();
         }
+        [HttpPost]
+        public ActionResult NewCode(ActivationViewModel avm)
+        {
+            List<ActivationViewModel> avmList = new List<ActivationViewModel>();
+            //var activVM = avmList.SingleOrDefault(a => a.ActivationCode == avm.ActivationCode);
+            var p = listPlayers.SingleOrDefault(e => e.Email == avm.Email);
 
 
+            var random = db.SendActivationEmail(avm, avm.Email);
+            WebMail.Send(avm.Email, $"Activation code: {random}", "http://localhost:60387/Player/Confirmed");
+
+            db.NewActivationCode(avm.Id, avm.PlayersId);
+            //TempData["odblokiran"] = "Vaš račun je verificiran";
+            // trenutniPlayerEmail = p.Email;
+            //TempData["trenutni"] = trenutniPlayerEmail;
+
+
+
+            return RedirectToAction("Confirmed");
+        }
+        public ActionResult Create()
+        {
+            return View();
+        }
         [HttpPost]
         public ActionResult Create(Player player)
         {
             db = new PlayerDb();
-
             ActivationViewModel activationvm = new ActivationViewModel();
             List<Player> listPlayer = new List<Player>();
             listPlayer = db.GetPlayers();
@@ -90,9 +124,9 @@ namespace Tipwin.Controllers
                 try
                 {
                     db.InsertPlayer(player);
-                    var random = db.SendActivationEmail(activationvm);
+                    var random = db.SendActivationEmail(activationvm, player.Email);
 
-                    WebMail.Send(player.Email, $"Activation code:{random}", "http://localhost:60387/Player/Confirmed");
+                    WebMail.Send(player.Email, $"Activation code: {random}", "http://localhost:60387/Player/Confirmed");
 
                     TempData["novikorisnik"] = player.KorisnickoIme + " je uspješno registriran/a. ";
                     TempData["info"] = "Vaš korisnički račun je uspješno kreiran. Poslana je poruka za aktivaciju na vašu el. poštu";
@@ -100,16 +134,14 @@ namespace Tipwin.Controllers
                     return RedirectToAction("EmailConfirmation", listPlayer);
 
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     ViewBag.ErrorMessage = "Greška: captcha nije validna.";
 
-                    ModelState.AddModelError("", "Korisnik je već registriran. Korisničko ime ili el. pošta su zauzeti");
+                    ModelState.AddModelError("", $"Korisnik je već registriran. Korisničko ime ili el. pošta su zauzeti - {e.Message}");
                     return View();
                 }
-
             }
-
             else if (!this.IsCaptchaValid("is not valid"))
             {
                 ModelState.AddModelError("", "Captcha not valid");
@@ -125,13 +157,11 @@ namespace Tipwin.Controllers
                 ModelState.AddModelError("", "Lozinka mora biti različita od el. pošte");
                 return View(player);
             }
-
             else if (player.Email != player.EmailPonovo)
             {
                 ModelState.AddModelError("", "Pogrešno unesena el. pošta");
                 return View(player);
             }
-
             else
             {
                 ModelState.AddModelError("", "Neuspješno uneseni podaci!Player nije dodan u bazu");
@@ -139,175 +169,43 @@ namespace Tipwin.Controllers
             }
         }
 
-        //public ActionResult Provjera(Player player)
-        //{
-        //    db.ActivateMyAccount(player);
-        //    return View(player);
-
-        //}
-
-
-        //public ActionResult SendPasswordResetEmail(string ToEmail, string UserName, string UniqueId)
-        //{
-        //    PlayerDb db = new PlayerDb();
-        //    var user = db.Validate();
-        //    var username = (from i in user where i.KorisnickoIme == UserName select i.KorisnickoIme).FirstOrDefault();
-
-        //    //var token = WebSecurity.GeneratePasswordResetToken(UserName);
-        //    var resetLink = "<a href='" + Url.Action("ResetPassword", "Player", new { un = UserName }, "http") + "'>Reset Password</a>";
-
-        //    //send mail
-        //    string subject = "Password Reset Token";
-        //    string body = "<b>Please find the Password Reset Token.</b><br/>The below link will be valid till 30 mins<br/>" + resetLink; //edit it
-        //    try
-        //    {
-        //        SendPasswordResetEmail(username, subject, body);
-        //        TempData["Message"] = "Mail Sent.";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        TempData["Message"] = "Error occured while sending email." + ex.Message;
-        //    }
-
-
-        //    MailMessage mailMessage = new MailMessage("danijel147258@gmail.com", ToEmail);
-
-        //    StringBuilder sbEmailBody = new StringBuilder();
-        //    sbEmailBody.Append("Dear " + UserName + "<br/> <br/>");
-        //    sbEmailBody.Append("Please click on the following link to reset your password");
-        //    sbEmailBody.Append("<br/>");
-        //    sbEmailBody.Append("http://localhost:60387/Player/SendPasswordResetEmail?uid=" + UniqueId);
-        //    sbEmailBody.Append("<br/>");
-        //    sbEmailBody.Append("<b>Tipwin<b/>");
-
-        //    mailMessage.IsBodyHtml = true;
-
-        //    mailMessage.Body = sbEmailBody.ToString();
-        //    mailMessage.Subject = "Reset Your Password";
-        //    SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
-
-        //    smtpClient.Credentials = new System.Net.NetworkCredential()
-        //    {
-        //        UserName = "danijel147258@gmail.com",
-        //        Password = "Domnet123-"
-        //    };
-        //    smtpClient.EnableSsl = true;
-        //    smtpClient.Send(mailMessage);
-
-        //    return View();
-        //}
-
-
-        //public static IEnumerable<SelectListItem> GetCountries()
-        //{
-        //    RegionInfo country = new RegionInfo(new CultureInfo("en-US", false).LCID);
-        //    List<SelectListItem> countryNames = new List<SelectListItem>();
-        //    string cult = CultureInfo.CurrentCulture.EnglishName;
-        //    string count = cult.Substring(cult.IndexOf('(') + 1, cult.LastIndexOf(')') - cult.IndexOf('(') - 1);
-
-        //    foreach (CultureInfo cul in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
-        //    {
-        //        country = new RegionInfo(new CultureInfo(cul.Name, false).LCID);
-        //        countryNames.Add(new SelectListItem()
-        //        {
-        //            Text = country.DisplayName,
-        //            Value = country.DisplayName,
-        //            Selected = count == country.EnglishName
-        //        });
-        //    }
-        //    IEnumerable<SelectListItem> nameAdded = countryNames.GroupBy(x => x.Text).Select(x => x.FirstOrDefault()).ToList<SelectListItem>().OrderBy(x => x.Text);
-        //    return nameAdded;
-        //}
         public ActionResult Index()
         {
 
             return View();
         }
-
-        [HttpPost]
-        public ActionResult Index(string empty)
-        {
-            //if (this.IsCaptchaValid("Captcha is not valid"))
-            //{
-            //    return View();
-            //}
-            //ViewBag.ErrorMessage = "Error: captcha is not valid.";
-            return View();
-        }
-
-
         public ActionResult EmailConfirmation()
         {
             return View();
         }
-
-
-        //public ActionResult Verify(string id)
-        //{
-        //    if (string.IsNullOrEmpty(id) || (!Regex.IsMatch(id, @"[0-9a-f]{8}\-
-        //                             ([0-9a-f]{4}\-){3}[0-9a-f]{12}")))
-        //    {
-        //        ViewBag.Msg = "Not Good!!!";
-        //        return View();
-        //    }
-
-        //    else
-        //    {
-        //        var user = Membership.GetUser(new Guid(id));
-
-        //        if (!user.IsApproved)
-        //        {
-        //            user.IsApproved = true;
-        //            Membership.UpdateUser(user);
-        //            FormsAuthentication.SetAuthCookie(user.UserName, false);
-        //            return RedirectToAction("EmailConfirmation", "Player");
-        //        }
-        //        else
-        //        {
-        //            FormsAuthentication.SignOut();
-        //            ViewBag.Msg = "Account Already Approved";
-        //            return RedirectToAction("Login");
-        //        }
-        //    }
-        //}
         public ActionResult ForgotPassword()
         {
 
             return View();
         }
 
-        public ActionResult ForgotUserName()
-        {
-            Player player = new Player();
-            return View(player);
-
-        }
-
         [HttpPost]
-        public ActionResult ForgotUserName(Player player)
+        public ActionResult ForgotPassword(Player player)
         {
-            //PlayerDb activateDb = new PlayerDb();
-            //activateDb.SendActivationEmail();
-            List<UserNameViewModel> userlistPlayer = new List<UserNameViewModel>();
-            ActivationViewModel activationsPlayer = new ActivationViewModel();
+            db = new PlayerDb();
+            var _player = db.GetPlayers().SingleOrDefault(p => p.KorisnickoIme == player.KorisnickoIme && p.DatumRodjenja == player.DatumRodjenja);
+            List<ActivationViewModel> GetListActivationEmail = new List<ActivationViewModel>();
+            GetListActivationEmail = db.GetActivationEmail();                //dohvatimo iz baze polje activation_code
 
+            List<PasswordViewModel> passwordDateList = new List<PasswordViewModel>();   //lista email i datum
+            ActivationViewModel activationCode = new ActivationViewModel();
 
-            userlistPlayer = db.ForgotUser();
-            // activationsPlayer = db.SendActivationEmail();
-
-
+            passwordDateList = db.GetForgotPassword();
             try
             {
-                if ((userlistPlayer.Any(s => s.Email == player.Email && s.DatumRodjenja == player.DatumRodjenja)) && this.IsCaptchaValid("Correct"))
+                if (_player != null && this.IsCaptchaValid("Correct"))
                 {
-                    Guid newGuid = Guid.NewGuid();
 
-
-                    WebMail.Send(player.Email, $"Activation code: {activationsPlayer.ActivationCode}", $"http://localhost:60387/Player/Confirmed?{newGuid}");
-                    //TempData["ConfirmMessage"] = "U el. pošti potvrdite korisničko ime s kodom ";
-
-                    return RedirectToAction("Confirmed");
-
+                    var random = GetListActivationEmail.SingleOrDefault(d => d.Email == _player.Email);
+                    WebMail.Send(_player.Email, $"Activation code:{random.ActivationCode}", $"http://localhost:60387/Player/Confirmed");
+                    TempData["ConfirmSuccessfull"] = "Uspješno verificiran aktivacijski kod. Prijavite se!";
+                    TempData["GetCode"] = "Provjerite el. poštu. Dobili ste aktivacijski kod";
+                    return RedirectToAction("Login");
                 }
                 else if (!this.IsCaptchaValid("invalid captcha"))
                 {
@@ -319,8 +217,81 @@ namespace Tipwin.Controllers
                     ViewBag.DataError = "Nema podataka u bazi. Prijavite se.";
                     return View();
                 }
+            }
+            catch (Exception ex)
+            {
+                TempData["send"] = "Not existing data " + ex.Message;
+                return View();
+            }
+        }
+        public ActionResult ChangePassword()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult ChangePassword(Player player)
+        {
+            db = new PlayerDb();
 
+            List<ActivationViewModel> GetListActivationEmail = new List<ActivationViewModel>();
+            GetListActivationEmail = db.GetActivationEmail();
+            List<Player> listPlayers = db.GetPlayers();
+            List<ChangePasswordViewModel> changePasswordList = new List<ChangePasswordViewModel>();
 
+            var p = listPlayers.SingleOrDefault(e => e.Email == trenutniPlayerEmail);
+            if (p != null)
+            {
+                try
+                {
+                    db.UpdatePassword(p.Email, player.Lozinka, player.LozinkaPonovo);
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", "Unesite novu lozinku" + e.Message);
+                    return View();
+                }
+            }
+            return RedirectToAction("Login");
+        }
+        public ActionResult AccountSuccess()
+        {
+            return View();
+        }
+        public ActionResult ForgotUserName()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult ForgotUserName(Player player)
+        {
+            db = new PlayerDb();
+            List<ActivationViewModel> GetListActivationEmail = new List<ActivationViewModel>();
+            GetListActivationEmail = db.GetActivationEmail();                //dohvatimo iz baze polje activation_code
+
+            List<UserNameViewModel> emailDateList = new List<UserNameViewModel>();   //lista email i date
+            ActivationViewModel activationCode = new ActivationViewModel();
+            emailDateList = db.GetForgotUser();
+
+            try
+            {
+                if ((emailDateList.Any(s => s.Email == player.Email && s.DatumRodjenja == player.DatumRodjenja)) && this.IsCaptchaValid("Correct"))
+                {
+                    var random = db.SendActivationEmail(activationCode, player.Email);
+                    WebMail.Send(player.Email, $"Activation code:{random}", "http://localhost:60387/Player/Confirmed");
+                    TempData["ConfirmSuccessfull"] = "Dobili ste activacijski kod ";
+                    return RedirectToAction("Confirmed");
+                }
+                else if (!this.IsCaptchaValid("invalid captcha"))
+                {
+                    ModelState.AddModelError("", "Captcha is not valid");
+                    return View();
+                }
+                else
+                {
+                    ViewBag.DataError = "Nema podataka u bazi. Prijavite se.";
+                    return View();
+                }
             }
             catch (Exception ex)
             {
@@ -329,21 +300,17 @@ namespace Tipwin.Controllers
             }
         }
 
-
         [AllowAnonymous]
         public ActionResult Login()
         {
             Player player = new Player();
             return View(player);
         }
-
-
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public ActionResult Login(AccountViewModel playervm)
         {
-
             List<AccountViewModel> listPlayer = new List<AccountViewModel>();
             listPlayer = db.Validate();
 
@@ -351,16 +318,11 @@ namespace Tipwin.Controllers
             activationListViewModel = db.GetActivationEmail();
 
             var activateAccount = activationListViewModel.Any();
-
             try
             {
-
                 if (activateAccount && listPlayer.Any(s => s.KorisnickoIme == playervm.KorisnickoIme && HashedPassword.Confirm(playervm.Lozinka, s.Lozinka, HashedPassword.SupportedHashAlgorithms.SHA256))
                 && !MvcApplication.LoginCounter.ReturnIfLockedUsername(playervm.KorisnickoIme))
                 {
-
-                    //listPlayer.SingleOrDefault(s => s.KorisnickoIme == playervm.KorisnickoIme && s.Lozinka == playervm.Lozinka);
-                    // System.Web.Security.FormsAuthentication.SetAuthCookie(playervm.KorisnickoIme, false);
                     Session["korisnickoIme"] = playervm.KorisnickoIme.ToString();
                     Session["lozinka"] = playervm.Lozinka.ToString();
 
@@ -368,19 +330,21 @@ namespace Tipwin.Controllers
                     return RedirectToAction("LoginSuccess");
 
                 }
+                else if (!listPlayer.Any(s => s.KorisnickoIme == playervm.KorisnickoIme && HashedPassword.Confirm(playervm.Lozinka, s.Lozinka, HashedPassword.SupportedHashAlgorithms.SHA256)))
+                {
+                    ModelState.AddModelError("", "Pogrešno korisničko ime i/ili lozinka");
+                    return View();
+                }
                 else
                 {
-
                     MvcApplication.LoginCounter.CheckLogin(playervm.KorisnickoIme);
                     if (MvcApplication.LoginCounter.ReturnIfLockedUsername(playervm.KorisnickoIme))
                     {
                         ViewBag.ErrorMessageLogin = MvcApplication.LoginCounter.LoginErrorMessage;
                         return View();
                     }
-
                 }
                 return View();
-
             }
             catch (Exception ex)
             {
@@ -419,9 +383,6 @@ namespace Tipwin.Controllers
             {
                 return RedirectToAction("Login");
             }
-
-
-
         }
 
         public ActionResult Logout()
@@ -476,5 +437,64 @@ namespace Tipwin.Controllers
         }
 
 
+        public ActionResult UploadFiles()
+        {
+            return View();
+        }
+
+        private bool IsValidContentType(string contentType)
+        {
+            return contentType.Equals("image/png") || contentType.Equals("image/gif") || contentType.Equals("image/jpg") || contentType.Equals("image/jpeg");
+        }
+
+        private bool IsValidContentLength(double contentLength)
+        {
+            return ((contentLength / 1024) / 1024) > 0.1 && (((contentLength / 1024) / 1024) < 6); //od 100kb do 5MB
+        }
+
+        [HttpPost]
+        public ActionResult Process(HttpPostedFileBase photo)
+        {
+            db = new PlayerDb();
+            List<ActivationViewModel> activationlistGetProvjeren = db.GetActivationEmail();
+            ActivationViewModel activationvm = new ActivationViewModel();
+
+            try
+            {
+                var verificiran = activationlistGetProvjeren.Any(s => s.Provjeren);
+
+                if (!IsValidContentType(photo.ContentType))
+                {
+                    ViewBag.Error = "Jedino JPG, JPEG, PNG & GIF su dopušteni";
+                    return View("UploadFiles");
+                }
+                else if (!IsValidContentLength(photo.ContentLength))
+                {
+                    ViewBag.Error = "Slike nisu u rasponu od 100kb do 5 mb";
+                    return View("UploadFiles");
+                }
+                else if (verificiran)
+                {
+                    ViewBag.SendErrorMessage = "Korisnički račun je već verificiran. Ne možete poslati dokument";
+                    return View("UploadFiles");
+                }
+                else
+                {
+                    if (photo.ContentLength > 0)
+                    {
+                        var fileName = Path.GetFileName(photo.FileName);
+                        var path = Path.Combine(Server.MapPath("~/Content/Images"), fileName);
+                        photo.SaveAs(path);
+                        ViewBag.fileName = photo.FileName;
+                    }
+                    return View("Success");
+                }
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError("", $"Error: {e}");
+            }
+            return View();
+        }
     }
 }

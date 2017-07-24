@@ -1,8 +1,6 @@
 ﻿@model Tipwin.Models.Player
 @{
     ViewBag.Title = "Login";
-
-
 }
 @using (Html.BeginForm(FormMethod.Post))
 {
@@ -14,12 +12,9 @@
     <h4>@ViewBag.Attempts</h4>
     <h4>@TempData["ConfirmMessage"]</h4>
     <h4>@TempData["odblokiran"]</h4>
-
-    @TempData["korisnickoIme"]
-
-    //  <div class="alert alert-success"></div>
-
-
+    <h4>@TempData["GetCode"]</h4>
+    @*<h4>@TempData["ConfirmSuccessfull"]</h4>*@
+    <h4>@TempData["korisnickoIme"]</h4>
 
     <div class="form-horizontal">
         <hr />
@@ -48,6 +43,7 @@
 <div>
     @Html.ActionLink("Zaboravljeno korisničko ime", "ForgotUserName", new { @class = "btn btn-sm" })|
     @Html.ActionLink("Zaboravljena lozinka", "ForgotPassword", new { @class = "btn btn-sm" })|
+    @Html.ActionLink("Verificirajte račun", "Confirmed", new { @class = "btn btn-sm" })|
     @Html.ActionLink("Nova prijava", "Login", "Player", new { @class = "btn btn-sm" })|
     @Html.ActionLink("Natrag na listu", "GetPlayer", "Player", new { @class = "btn btn-sm" })
 </div>
