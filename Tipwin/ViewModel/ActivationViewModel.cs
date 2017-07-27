@@ -8,6 +8,7 @@ namespace Tipwin.ViewModel
         [Required(ErrorMessage = "Upišite aktivacijski kod")]
         public string ActivationCode { get; set; }
         public string Email { get; set; }
+        public string EmailPonovo { get; set; }
 
         public int PlayersId { get; set; }
 

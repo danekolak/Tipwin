@@ -18,6 +18,7 @@ namespace Tipwin.Controllers
     public class PlayerController : Controller
     {
         static string trenutniPlayerEmail = "";
+        static string emailAddress = "";
 
         PlayerDb db = new PlayerDb();
         List<Player> listPlayers = new List<Player>();
@@ -53,9 +54,12 @@ namespace Tipwin.Controllers
                     if (activationvm.ActivationCode.Any() && activVM != null)
                     {
                         db.SavePlayerActivationId(activVM.Id, p.Id, verificiran);
+                        //db.UpdateEmailAddress(activVM.Id, p.Email, p.EmailPonovo);
                         TempData["odblokiran"] = "Vaš račun je verificiran";
                         trenutniPlayerEmail = p.Email;
                         TempData["trenutni"] = trenutniPlayerEmail;
+                        //emailAddress = p.Email;
+                        //TempData["emailAddress"] = emailAddress;
 
                         if (activVM.PlayersId == 0)
                         {
@@ -199,7 +203,7 @@ namespace Tipwin.Controllers
                     WebMail.Send(_player.Email, $"Activation code:{random.ActivationCode}", $"http://localhost:60387/Player/Confirmed");
                     TempData["ConfirmSuccessfull"] = "Uspješno verificiran aktivacijski kod. Prijavite se!";
                     TempData["GetCode"] = "Provjerite el. poštu. Dobili ste aktivacijski kod";
-                    return RedirectToAction("Login");
+                    return RedirectToAction("Confirmed");
                 }
                 else if (!this.IsCaptchaValid("invalid captcha"))
                 {
@@ -218,6 +222,40 @@ namespace Tipwin.Controllers
                 return View();
             }
         }
+        public ActionResult ChangeEmailAddress()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult ChangeEmailAddress(Player player)
+        {
+            db = new PlayerDb();
+            List<ActivationViewModel> listActivations = db.GetActivationEmail();
+            List<Player> listPlayers = db.GetPlayers();
+            //List<ChangeEmailViewModel> changeEmailList = new List<ChangeEmailViewModel>();
+            //trenutniPlayerEmail = player.Email;
+            var p = listPlayers.SingleOrDefault(s => s.Email != player.Email);
+            var a = listActivations.SingleOrDefault(s => s.Email != player.Email); //iz ovog se nadje player_id za mail adresu to sutra
+
+            if (p != null)
+            {
+                try
+                {
+                    db.UpdateEmailAddress(p.Id, player.Email, player.EmailPonovo);
+                    db.UpdateEmailAddressFK(a.Id, a.Email, a.PlayersId);
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", "Unesite novu email adresu " + e.Message);
+                    return View();
+                }
+            }
+            return RedirectToAction("Login");
+
+        }
+
+
+
         public ActionResult ChangePassword()
         {
             return View();
@@ -350,7 +388,7 @@ namespace Tipwin.Controllers
 
         public ActionResult LoginSuccess()
         {
-            AccountViewModel playervm = new AccountViewModel();
+            Player player = new Player();
 
             //if (Request.Cookies["cookie"] != null)
             //{
@@ -360,8 +398,8 @@ namespace Tipwin.Controllers
             HttpCookie hc = Request.Cookies["cookie"];
             if (hc != null)
             {
-                playervm.KorisnickoIme = hc["cookie"];
-                playervm.Lozinka = hc["cookie"];
+                player.KorisnickoIme = hc["cookie"];
+                player.Lozinka = hc["cookie"];
 
                 Response.Cookies["cookie"].Expires = DateTime.Now.AddMinutes(1);
                 Response.Cookies.Add(hc);

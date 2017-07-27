@@ -70,5 +70,25 @@ namespace Tipwin.ViewModel
 
     }
 
+    public class ChangeEmailViewModel
+    {
+        [Required(ErrorMessage = "Molimo unesite email adresu...")]
+        [DataType(DataType.EmailAddress)]
+        [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Please enter a valid e-mail adress")]
+        [EmailAddress(ErrorMessage = "Invalid Email Address")]
+        [NotEqualTo("Lozinka", ErrorMessage = "Mora biti različito od lozinke")]
+        [Display(Name = "Email adresa")]
+        public string Email { get; set; }
+
+
+
+        [Required(ErrorMessage = "Molimo potvrdite email adresu....")]
+        [System.ComponentModel.DataAnnotations.Compare("Email", ErrorMessage = "Email adresa nije ista")]
+        [RegularExpression(@"^([\w-\.]+)@((\[[0-9]{1,3]\.)|(([\w-]+\.)+))([a-zA-Z{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Unesite ispravnu el. poštu")]
+        [Display(Name = "Ponovite email adresu")]
+        [DataType(DataType.EmailAddress)]
+        public string EmailPonovo { get; set; }
+    }
+
 
 }

@@ -372,6 +372,7 @@
     <Content Include="Views\Player\Success.cshtml" />
     <Content Include="Views\Player\NewCode.cshtml" />
     <Content Include="Views\Player\EditUserAccount.cshtml" />
+    <Content Include="Views\Player\ChangeEmailAddress.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

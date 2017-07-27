@@ -118,56 +118,7 @@ namespace Tipwin.Repository
             }
             return null;
         }
-        //public UserNameData SelectByIdAddressData(int id)
-        //{
-        //    UserNameData p1 = null;
-        //    connection = new MySqlConnection(conString);
-        //    string selQuery = "SELECT kucni_broj,grad_mjesto,postanski_broj,drzava FROM players WHERE id=@id";
-        //    MySqlCommand cmd = new MySqlCommand(selQuery, connection);
-        //    cmd.Parameters.AddWithValue("@id", id);
-        //    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-        //    DataTable dt = new DataTable();
-        //    da.Fill(dt);
 
-        //    if (dt.Rows.Count != 0)
-        //    {
-        //        DataRow dr = dt.Rows[0];
-        //        p1 = new UserNameData()
-        //        {
-        //            KucniBroj = Convert.ToString(dr["kucni_broj"]),
-        //            GradMjesto = Convert.ToString(dr["grad_mjesto"]),
-        //            PostanskiBroj = Convert.ToInt32(dr["postanski_broj"]),
-        //            Drzava = Convert.ToString(dr["drzava"])
-        //        };
-        //        return p1;
-        //    }
-        //    return null;
-        //}
-        //public UserNameData SelectByIdContactData(int id)
-        //{
-        //    UserNameData p1 = null;
-        //    connection = new MySqlConnection(conString);
-        //    string selQuery = "SELECT jezik_za_kontakt,broj_telefona,broj_mobitela FROM players WHERE id=@id";
-        //    MySqlCommand cmd = new MySqlCommand(selQuery, connection);
-        //    cmd.Parameters.AddWithValue("@id", id);
-        //    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-        //    DataTable dt = new DataTable();
-        //    da.Fill(dt);
-
-        //    if (dt.Rows.Count != 0)
-        //    {
-        //        DataRow dr = dt.Rows[0];
-        //        p1 = new UserNameData()
-        //        {
-        //            JezikZaKontakt = Convert.ToString(dr["jezik_za_kontakt"]),
-        //            BrojTelefona = Convert.ToInt32(dr["broj_telefona"] as int? ?? null),
-        //            BrojMobitela = Convert.ToInt32(dr["broj_mobitela"] as int? ?? null)
-
-        //        };
-        //        return p1;
-        //    }
-        //    return null;
-        //}
         public bool UpdatePlayer(UserNameData player)
         {
             connection = new MySqlConnection(conString);
@@ -190,6 +141,22 @@ namespace Tipwin.Repository
             connection.Close();
             if (i >= 1) return true; else return false;
         }
+
+        //public void UpdateEmail(int activationCodeId, string email, int playerId)
+        //{
+        //    connection = new MySqlConnection(conString);
+        //    string selQuery = "update activations set email=@email players_id = @players_id where id = @id";
+
+        //    MySqlCommand cmd = new MySqlCommand(selQuery, connection);
+        //    cmd.Parameters.AddWithValue("@id", activationCodeId);
+        //    cmd.Parameters.AddWithValue("@email", email);
+        //    cmd.Parameters.AddWithValue("@players_id", playerId);
+
+
+        //    connection.Open();
+        //    cmd.ExecuteNonQuery();
+        //    connection.Close();
+        //}
 
         public string FetchUserId(string email)
         {
@@ -347,18 +314,36 @@ namespace Tipwin.Repository
             connection.Close();
         }
 
-        //public void Verificiran(int provjeren)
-        //{
-        //    connection = new MySqlConnection(conString);
-        //    string selQuery = "update activations set provjeren = 1";
+        public void UpdateEmailAddress(int id, string email, string emailPonovo)
+        {
+            connection = new MySqlConnection(conString);
 
-        //    MySqlCommand cmd = new MySqlCommand(selQuery, connection);
-        //    cmd.Parameters.AddWithValue("@provjeren", provjeren);
+            string selQuery = "update players set email = @email, email_ponovo = @email_ponovo where id = @id";
+            MySqlCommand cmd = new MySqlCommand(selQuery, connection);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.Parameters.AddWithValue("@email", email);
+            cmd.Parameters.AddWithValue("@email_ponovo", emailPonovo);
 
-        //    connection.Open();
-        //    cmd.ExecuteNonQuery();
-        //    connection.Close();
-        //}
+            connection.Open();
+            cmd.ExecuteNonQuery();
+            connection.Close();
+        }
+
+        public void UpdateEmailAddressFK(int id, string email, int playersId)
+        {
+            connection = new MySqlConnection(conString);
+
+            string selQuery = "update activations set email = @email,players_id=@players_id where id = @id";
+            MySqlCommand cmd = new MySqlCommand(selQuery, connection);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.Parameters.AddWithValue("@email", email);
+            cmd.Parameters.AddWithValue("@players_id", playersId);
+
+            connection.Open();
+            cmd.ExecuteNonQuery();
+            connection.Close();
+        }
+
 
         public void UpdatePassword(string email, string newPassword, string passwordRepeat)
         {

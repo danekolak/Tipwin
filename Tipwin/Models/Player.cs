@@ -41,8 +41,8 @@ namespace Tipwin.Models
         [Display(Name = "Email adresa")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Molimo potvrdite el poštu....")]
-        [System.ComponentModel.DataAnnotations.Compare("Email", ErrorMessage = "El pošta adresa nije ista")]
+        [Required(ErrorMessage = "Molimo potvrdite email adresu....")]
+        [System.ComponentModel.DataAnnotations.Compare("Email", ErrorMessage = "Email adresa nije ista")]
         [RegularExpression(@"^([\w-\.]+)@((\[[0-9]{1,3]\.)|(([\w-]+\.)+))([a-zA-Z{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Unesite ispravnu el. poštu")]
         [Display(Name = "Ponovite email adresu")]
         [DataType(DataType.EmailAddress)]
