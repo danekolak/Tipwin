@@ -113,7 +113,5 @@ namespace Tipwin.Models
         [Display(Name = "Ponovite lozinku")]
         public string LozinkaPonovo { get; set; }
 
-
-
     }
 }

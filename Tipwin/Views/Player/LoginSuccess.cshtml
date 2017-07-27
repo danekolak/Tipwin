@@ -1,4 +1,4 @@
-﻿
+﻿@model Tipwin.Models.Player
 @{
     ViewBag.Title = "LoginSuccess";
 
@@ -11,10 +11,14 @@
     <div class="alert alert-success">@TempData["korisnickoime"]</div>
     <br />
     @Html.ActionLink("Logout", "Login", "Player")
-
+    <br />
 }
 <h2>Read</h2>
-Cookie Value = @ViewData["cookie"]
-<br />
-@Html.ActionLink("Promjena email adrese", "ChangeEmailAddress", new { @class = "btn btn-sm" })|
-@Html.ActionLink("Dodavanje dokumenta", "UploadFiles")
+    Cookie Value = @ViewData["cookie"]
+    <br />
+    @*@Html.ActionLink("Promjena email adrese", "ChangeEmailAddress", "Player", new
+        {
+            username = @Session["korisnickoIme"]
+        }, null)*@
+    @Html.ActionLink("Promjena email adrese", "ChangeEmailAddress")
+    | @Html.ActionLink("Dodavanje dokumenta", "UploadFiles")
